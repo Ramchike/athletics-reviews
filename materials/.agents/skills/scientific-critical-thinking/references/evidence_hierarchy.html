@@ -1,0 +1,455 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>evidence_hierarchy</title><style>
+:root{color-scheme:dark;--bg:#101820;--card:#18252f;--ink:#edf4f6;--muted:#b7c8d0;--accent:#8be6c7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.65 system-ui,sans-serif}
+main,header,footer{max-width:820px;margin:auto;padding:20px}header{padding-bottom:8px}
+header a,nav a,.filter{display:inline-block;padding:10px 12px;margin:4px 4px 4px 0;border-radius:10px;border:1px solid #46616f}
+a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}h1{font-size:clamp(27px,5vw,38px);line-height:1.2}
+h2{font-size:25px;line-height:1.35;margin:0 0 20px}h3{font-size:21px}.card{background:var(--card);border:1px solid #314855;border-radius:16px;padding:22px;margin:26px 0}
+img{display:block;width:100%;max-width:100%;height:auto;margin:12px auto;border-radius:8px}p{margin:16px 0}
+details{padding:12px;border:1px solid #46616f;border-radius:10px;margin:12px 0}summary{cursor:pointer;font-weight:600;min-height:28px}
+table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;font-size:16px}td,th{padding:10px;border:1px solid #46616f;min-width:130px;vertical-align:top}
+pre{overflow:auto;max-width:100%;padding:14px;background:#091219}code{font-size:.9em;overflow-wrap:anywhere}blockquote{border-left:3px solid var(--accent);margin:16px 0;padding-left:16px}
+.note,footer{color:var(--muted);font-size:15px}.filter{background:transparent;color:var(--ink);font:inherit;cursor:pointer}.filter[aria-pressed=true]{background:#285446}
+[hidden]{display:none!important}:focus-visible{outline:3px solid #ffcc67;outline-offset:3px}
+@media(max-width:480px){main,header,footer{padding:14px}.card{padding:16px;margin:20px 0}h2{font-size:23px}}
+</style></head><body><header><a href="../../../../../">Все разборы</a><a href="../../../../../starts/">Старт: карточки</a><a href="https://github.com/Ramchike/athletics-reviews">GitHub</a></header><main><h1 id="evidence-hierarchy-and-quality-assessment">Evidence Hierarchy and Quality Assessment</h1>
+<h2 id="traditional-evidence-hierarchy-medicalclinical">Traditional Evidence Hierarchy (Medical/Clinical)</h2>
+<p>This is a teaching shorthand for some intervention questions, not a universal ranking.
+Choose designs for the question: prevalence, prognosis, diagnostic accuracy, harms, and
+mechanisms have different evidence needs. A review synthesizes its underlying studies;
+meta-analysis alone does not increase certainty. Reporting quality, risk of bias,
+applicability, and certainty must be assessed separately. Current sources are recorded in
+<a href="review_sources.html">review_sources.md</a>.</p>
+<h3 id="level-1-systematic-reviews-and-meta-analyses">Level 1: Systematic Reviews and Meta-Analyses</h3>
+<p><strong>Description:</strong> Comprehensive synthesis of all available evidence on a question.</p>
+<p><strong>Strengths:</strong>
+- Combines multiple studies for greater power
+- Reduces impact of single-study anomalies
+- Can identify patterns across studies
+- May quantify a pooled effect if studies and estimands can meaningfully be combined</p>
+<p><strong>Weaknesses:</strong>
+- Quality depends on included studies ("garbage in, garbage out")
+- Publication bias can distort findings
+- Heterogeneity may make pooling inappropriate
+- Can mask important differences between studies</p>
+<p><strong>Critical evaluation:</strong>
+- Was search comprehensive (multiple databases, grey literature)?
+- Were inclusion criteria appropriate and prespecified?
+- Was study quality assessed?
+- Was heterogeneity explored?
+- Were missing studies/results sought in registries and protocols? If funnel-plot methods
+  were appropriate, were alternative explanations for asymmetry considered? Fail-safe N
+  is not a reliable assessment of missing-evidence bias.
+- Were appropriate statistical methods used?</p>
+<h3 id="level-2-randomized-controlled-trials-rcts">Level 2: Randomized Controlled Trials (RCTs)</h3>
+<p><strong>Description:</strong> Experimental studies with random assignment to conditions.</p>
+<p><strong>Strengths:</strong>
+- Strong design for estimating intervention effects when implemented and analysed appropriately
+- Balances prognostic factors in expectation, not necessarily in each realized sample
+- Minimizes selection bias
+- Enables causal inference</p>
+<p><strong>Weaknesses:</strong>
+- May not be ethical or feasible
+- Artificial settings may limit generalizability
+- Often short-term with selected populations
+- Expensive and time-consuming</p>
+<p><strong>Critical evaluation:</strong>
+- Was randomization adequate (sequence generation, allocation concealment)?
+- Was blinding implemented (participants, providers, assessors)?
+- Was sample size adequate (power analysis)?
+- Was intention-to-treat analysis used?
+- Was attrition rate acceptable and balanced?
+- Are results generalizable?</p>
+<h3 id="level-3-cohort-studies">Level 3: Cohort Studies</h3>
+<p><strong>Description:</strong> Observational studies following groups over time.</p>
+<p><strong>Types:</strong>
+- <strong>Prospective:</strong> Follow forward from exposure to outcome
+- <strong>Retrospective:</strong> Look backward at existing data</p>
+<p><strong>Strengths:</strong>
+- Can study multiple outcomes
+- Establishes temporal sequence
+- Can calculate incidence and relative risk
+- More feasible than RCTs for many questions</p>
+<p><strong>Weaknesses:</strong>
+- Susceptible to confounding
+- Selection bias possible
+- Attrition can bias results
+- Causal interpretation requires explicit identification assumptions and sensitivity analysis</p>
+<p><strong>Critical evaluation:</strong>
+- Were cohorts comparable at baseline?
+- Was exposure measured reliably?
+- Was follow-up adequate and complete?
+- Were potential confounders measured and controlled?
+- Was outcome assessment blinded to exposure?</p>
+<h3 id="level-4-case-control-studies">Level 4: Case-Control Studies</h3>
+<p><strong>Description:</strong> Compare people with outcome (cases) to those without (controls), looking back at exposures.</p>
+<p><strong>Strengths:</strong>
+- Efficient for rare outcomes
+- Relatively quick and inexpensive
+- Can study multiple exposures
+- Useful for generating hypotheses</p>
+<p><strong>Weaknesses:</strong>
+- Usually cannot estimate absolute incidence from sampled case/control counts alone
+- Susceptible to recall bias
+- Selection of controls is challenging
+- Causal interpretation depends on the sampling design and control of relevant biases</p>
+<p><strong>Critical evaluation:</strong>
+- Were cases and controls defined clearly?
+- Were controls appropriate (same source population)?
+- Was matching appropriate?
+- How was exposure ascertained (records vs. recall)?
+- Were potential confounders controlled?
+- Could recall bias explain findings?</p>
+<h3 id="level-5-cross-sectional-studies">Level 5: Cross-Sectional Studies</h3>
+<p><strong>Description:</strong> Snapshot observation at single point in time.</p>
+<p><strong>Strengths:</strong>
+- Quick and inexpensive
+- Can assess prevalence
+- Useful for hypothesis generation
+- Can study multiple outcomes and exposures</p>
+<p><strong>Weaknesses:</strong>
+- Cannot establish temporal sequence
+- Cannot determine causation
+- Prevalence-incidence bias
+- Survival bias</p>
+<p><strong>Critical evaluation:</strong>
+- Was sample representative?
+- Were measures validated?
+- Could reverse causation explain findings?
+- Are confounders acknowledged?</p>
+<h3 id="level-6-case-series-and-case-reports">Level 6: Case Series and Case Reports</h3>
+<p><strong>Description:</strong> Description of observations in clinical practice.</p>
+<p><strong>Strengths:</strong>
+- Can identify new diseases or effects
+- Hypothesis-generating
+- Details rare phenomena
+- Quick to report</p>
+<p><strong>Weaknesses:</strong>
+- No control group
+- Descriptive uncertainty may be estimable; uncontrolled counts do not identify a comparative effect
+- Highly susceptible to bias
+- Cannot establish causation or frequency</p>
+<p><strong>Use:</strong> Primarily for hypothesis generation and clinical description.</p>
+<h3 id="level-7-expert-opinion">Level 7: Expert Opinion</h3>
+<p><strong>Description:</strong> Statements by recognized authorities.</p>
+<p><strong>Strengths:</strong>
+- Synthesizes experience
+- Useful when no research available
+- May integrate multiple sources</p>
+<p><strong>Weaknesses:</strong>
+- Subjective and potentially biased
+- May not reflect current evidence
+- Appeal to authority fallacy risk
+- Individual expertise varies</p>
+<p><strong>Use:</strong> Lowest level of evidence; should be supported by data when possible.</p>
+<h2 id="nuances-and-limitations-of-traditional-hierarchy">Nuances and Limitations of Traditional Hierarchy</h2>
+<h3 id="when-lower-level-evidence-can-be-strong">When Lower-Level Evidence Can Be Strong</h3>
+<ol>
+<li><strong>Well-designed observational studies</strong> with:</li>
+<li>Large effects that plausible bias cannot explain (size alone does not establish this)</li>
+<li>Dose-response relationships</li>
+<li>Consistent findings across contexts</li>
+<li>Biological plausibility</li>
+<li>
+<p>Explicitly justified confounding and selection assumptions, with sensitivity analyses</p>
+</li>
+<li>
+<p><strong>Multiple converging lines of evidence</strong> from different study types</p>
+</li>
+<li>
+<p><strong>Natural experiments</strong> approximating randomization</p>
+</li>
+</ol>
+<h3 id="when-higher-level-evidence-can-be-weak">When Higher-Level Evidence Can Be Weak</h3>
+<ol>
+<li><strong>Poor-quality RCTs</strong> with:</li>
+<li>Inadequate randomization</li>
+<li>High attrition</li>
+<li>No blinding when feasible</li>
+<li>
+<p>Design, conduct, or reporting problems associated with sponsor influence</p>
+</li>
+<li>
+<p><strong>Biased meta-analyses</strong>:</p>
+</li>
+<li>Publication bias</li>
+<li>Selective inclusion</li>
+<li>Inappropriate pooling</li>
+<li>
+<p>Poor search strategy</p>
+</li>
+<li>
+<p><strong>Not addressing the right question</strong>:</p>
+</li>
+<li>Wrong population</li>
+<li>Wrong comparison</li>
+<li>Wrong outcome</li>
+<li>Too artificial to generalize</li>
+</ol>
+<h2 id="alternative-grade-system">Alternative: GRADE System</h2>
+<p>GRADE assesses certainty in a <strong>body of evidence for a specified outcome and comparison</strong>.
+Choose the relevant GRADE application, target population and decision threshold; retain
+effect estimates and uncertainty alongside domain judgments. The current GRADE Book is
+being released progressively; consult its updated chapters and the handbook only for
+sections not yet replaced.</p>
+<p>For intervention effects, the traditional approach starts randomized evidence at high and
+non-randomized evidence at low certainty. When using the ROBINS-I-integrated approach,
+start at high and assess bias from confounding/selection explicitly, usually rating down
+substantially. Do not penalize lack of randomization twice. Specify the approach before
+rating. Consider risk of bias, inconsistency, indirectness, imprecision, and missing-evidence
+bias, and justify any large-effect, dose-response, or opposing-confounding considerations.</p>
+<p>These levels are judgments about certainty, not numerical probabilities or recommendation strength:</p>
+<h3 id="high-certainty">High Certainty</h3>
+<p><strong>Definition:</strong> High confidence that the effect is on the specified side of a threshold
+or within the target range.</p>
+<p><strong>Characteristics:</strong>
+- No important unresolved concerns across the applicable certainty domains
+- Neither an RCT label nor a large effect alone establishes high certainty</p>
+<h3 id="moderate-certainty">Moderate Certainty</h3>
+<p><strong>Definition:</strong> Moderate confidence in that target; the effect could be in another range.</p>
+<p><strong>Downgrades from high:</strong>
+- Some risk of bias
+- Inconsistency across studies
+- Indirectness (different populations/interventions)
+- Imprecision relative to the specified threshold/range of important effects
+- Publication bias suspected</p>
+<h3 id="low-certainty">Low Certainty</h3>
+<p><strong>Definition:</strong> Limited confidence in that target; the effect may be in a different range.</p>
+<p><strong>Downgrades:</strong>
+- Serious limitations in above factors
+- Observational studies without special strengths</p>
+<h3 id="very-low-certainty">Very Low Certainty</h3>
+<p><strong>Definition:</strong> Very little confidence in that target; substantial uncertainty remains
+about the effect's range.</p>
+<p><strong>Characteristics:</strong>
+- Very serious limitations
+- Evidence may be too sparse or indirect to support an effect estimate at all; do not
+  invent a numerical estimate or GRADE rating for an unsupported opinion
+- Multiple serious flaws</p>
+<p>Document threshold magnitudes and their rationale. For intervention decisions use absolute
+effects with an appropriate baseline risk and its uncertainty. Rate down/up only when a
+concern changes confidence in the target range; do not double-count the same underlying
+problem across domains. Have independent assessors reconcile formal judgments.</p>
+<h2 id="study-quality-assessment-criteria">Study Quality Assessment Criteria</h2>
+<h3 id="internal-validity-bias-control">Internal Validity (Bias Control)</h3>
+<p><strong>Questions:</strong>
+- Was randomization adequate?
+- Was allocation concealed?
+- Were groups similar at baseline?
+- Was blinding implemented?
+- Could missingness depend on the unobserved outcome? Low or balanced attrition alone
+  does not establish low risk of bias.
+- Was intention-to-treat used?
+- Were all outcomes reported?</p>
+<h3 id="external-validity-generalizability">External Validity (Generalizability)</h3>
+<p><strong>Questions:</strong>
+- Is sample representative of target population?
+- Are inclusion/exclusion criteria too restrictive?
+- Is setting realistic?
+- Are results applicable to other populations?
+- Are effects consistent across subgroups?</p>
+<h3 id="statistical-conclusion-validity">Statistical Conclusion Validity</h3>
+<p><strong>Questions:</strong>
+- Was sample size adequate (power)?
+- Were statistical tests appropriate?
+- Were assumptions checked?
+- Were effect sizes and confidence intervals reported?
+- Were multiple comparisons addressed?
+- Was analysis prespecified?</p>
+<h3 id="construct-validity-measurement">Construct Validity (Measurement)</h3>
+<p><strong>Questions:</strong>
+- Were measures validated and reliable?
+- Was outcome defined clearly and appropriately?
+- Were assessors blinded?
+- Were exposures measured accurately?
+- Was timing of measurement appropriate?</p>
+<h2 id="critical-appraisal-tools">Critical Appraisal Tools</h2>
+<h3 id="for-different-study-types">For Different Study Types</h3>
+<p><strong>RCTs:</strong>
+- Cochrane RoB 2 — recommended for randomized trials in Cochrane intervention reviews;
+  assess a result, use the correct parallel/cluster/crossover variant, and retain reasons
+- PEDro Scale — used for physiotherapy trials; its score is not interchangeable with RoB 2
+- Legacy RoB 1 and Jadad ratings in older reviews should be identified as such</p>
+<p><strong>Observational Studies:</strong>
+- ROBINS-I applies to non-randomized <strong>intervention effects</strong>, not every observational question.
+  Specify the 2016 version or November 2025 ROBINS-I V2 draft for follow-up/cohort studies;
+  do not combine version-specific signalling questions or domains.
+- Newcastle-Ottawa Scale has cohort and case-control forms; record the chosen form and
+  item judgments, not an unexplained universal good/poor star cutoff.</p>
+<p><strong>Diagnostic Studies:</strong>
+- QUADAS-3 (current tool v1.2, published February 2026) assesses bias and applicability
+  for individual accuracy estimates against defined synthesis questions and an ideal
+  test accuracy trial. QUADAS-2 is the previous version.</p>
+<p><strong>Systematic Reviews:</strong>
+- AMSTAR 2 appraises systematic reviews of healthcare interventions; assess critical
+  weaknesses rather than calculating a total score.
+- PRISMA 2020 assesses reporting completeness; it is not a risk-of-bias instrument.</p>
+<p><strong>Design-specific general appraisal:</strong>
+- CASP supplies separate checklists for supported study designs; select the matching one.
+  Do not assume every design has the same domains or numerical score.</p>
+<h2 id="domain-specific-considerations">Domain-Specific Considerations</h2>
+<h3 id="basic-science-research">Basic Science Research</h3>
+<p><strong>Consider together, without imposing a fixed ranking:</strong>
+1. Multiple convergent lines of evidence
+2. Mechanistic understanding
+3. Reproducible experiments
+4. Established theoretical framework</p>
+<p><strong>Key considerations:</strong>
+- Replication essential
+- Mechanistic plausibility
+- Consistency across model systems
+- Convergence of methods</p>
+<h3 id="psychological-research">Psychological Research</h3>
+<p><strong>Additional concerns:</strong>
+- Replication crisis
+- Publication bias particularly problematic
+- Small effect sizes often expected
+- Cultural context matters
+- Measures often indirect (self-report)</p>
+<p><strong>Strong evidence includes:</strong>
+- Preregistered studies
+- Large samples
+- Multiple measures
+- Behavioral (not just self-report) outcomes
+- Cross-cultural replication</p>
+<h3 id="epidemiology">Epidemiology</h3>
+<p><strong>Causal inference frameworks:</strong>
+- Bradford Hill criteria
+- Rothman's causal pies
+- Directed Acyclic Graphs (DAGs)</p>
+<p><strong>Strong observational evidence:</strong>
+- Dose-response relationships
+- Temporal consistency
+- Biological plausibility
+- Specificity can inform interpretation but is not necessary for causation
+- Consistency across populations
+- Large effects assessed against plausible confounding and selection mechanisms</p>
+<h3 id="social-sciences">Social Sciences</h3>
+<p><strong>Challenges:</strong>
+- Complex interventions
+- Context-dependent effects
+- Measurement challenges
+- Ethical constraints on RCTs</p>
+<p><strong>Strengthening evidence:</strong>
+- Mixed methods
+- Natural experiments
+- Instrumental variables
+- Regression discontinuity designs
+- Multiple operationalizations</p>
+<h2 id="synthesizing-evidence-across-studies">Synthesizing Evidence Across Studies</h2>
+<h3 id="consistency">Consistency</h3>
+<p><strong>Strong evidence:</strong>
+- Multiple studies, different investigators
+- Different populations and settings
+- Different research designs converge
+- Different measurement methods</p>
+<p><strong>Weak evidence:</strong>
+- Single study
+- Only one research group
+- Conflicting results
+- Publication bias evident</p>
+<h3 id="biologicaltheoretical-plausibility">Biological/Theoretical Plausibility</h3>
+<p><strong>Strengthens evidence:</strong>
+- Known mechanism
+- Consistent with other knowledge
+- Dose-response relationship
+- Coherent with animal/in vitro data</p>
+<p><strong>Weakens evidence:</strong>
+- No plausible mechanism
+- Contradicts established knowledge
+- Biological implausibility</p>
+<h3 id="temporality">Temporality</h3>
+<p><strong>Essential for causation:</strong>
+- Cause must precede effect
+- Cross-sectional studies cannot establish
+- Reverse causation must be ruled out</p>
+<h3 id="specificity">Specificity</h3>
+<p><strong>Moderate indicator:</strong>
+- Specific cause → specific effect strengthens causation
+- But lack of specificity doesn't rule out causation
+- Most causes have multiple effects</p>
+<h3 id="strength-of-association">Strength of Association</h3>
+<p><strong>Strong evidence:</strong>
+- Large effects with plausible confounding, selection, and measurement explanations examined
+- Dose-response relationships
+- All-or-none effects</p>
+<p><strong>Caution:</strong>
+- Small effects may still be real
+- Large effects can still be confounded</p>
+<h2 id="red-flags-in-evidence-quality">Red Flags in Evidence Quality</h2>
+<h3 id="study-design-red-flags">Study Design Red Flags</h3>
+<ul>
+<li>No control group</li>
+<li>Self-selected participants</li>
+<li>No randomization when feasible</li>
+<li>No blinding when feasible</li>
+<li>Very small sample</li>
+<li>Inappropriate statistical tests</li>
+</ul>
+<h3 id="reporting-red-flags">Reporting Red Flags</h3>
+<ul>
+<li>Selective outcome reporting</li>
+<li>No study registration/protocol</li>
+<li>Missing methodological details</li>
+<li>No conflicts of interest statement</li>
+<li>Cherry-picked citations</li>
+<li>Results don't match methods</li>
+</ul>
+<h3 id="interpretation-red-flags">Interpretation Red Flags</h3>
+<ul>
+<li>Causal language from correlational data</li>
+<li>Claiming "proof"</li>
+<li>Ignoring limitations</li>
+<li>Overgeneralizing</li>
+<li>Spinning negative results</li>
+<li>Post hoc rationalization</li>
+</ul>
+<h3 id="context-red-flags">Context Red Flags</h3>
+<ul>
+<li>Industry funding without independence</li>
+<li>Single study in isolation</li>
+<li>Contradicts preponderance of evidence</li>
+<li>No replication</li>
+<li>Published in predatory journal</li>
+<li>Press release before peer review</li>
+</ul>
+<h2 id="practical-decision-framework">Practical Decision Framework</h2>
+<h3 id="when-evaluating-evidence-ask">When Evaluating Evidence, Ask:</h3>
+<ol>
+<li><strong>What type of study is this?</strong> (Design)</li>
+<li><strong>How well was it conducted?</strong> (Quality)</li>
+<li><strong>What does it actually show?</strong> (Results)</li>
+<li><strong>How likely is bias?</strong> (Internal validity)</li>
+<li><strong>Does it apply to my question?</strong> (External validity)</li>
+<li><strong>How does it fit with other evidence?</strong> (Context)</li>
+<li><strong>Are the conclusions justified?</strong> (Interpretation)</li>
+<li><strong>What are the limitations?</strong> (Uncertainty)</li>
+</ol>
+<h3 id="making-decisions-with-imperfect-evidence">Making Decisions with Imperfect Evidence</h3>
+<p>Certainty does not itself authorize changing practice or policy. A high-certainty estimate
+may show negligible benefit or important harm. Low-certainty evidence may still inform a
+decision when delay or alternatives carry costs. A separate evidence-to-decision process
+considers absolute benefits/harms, values, resources, equity, acceptability, and feasibility.
+State whose decision and setting are involved; an appraisal is not an individual clinical
+recommendation. Identify the information most likely to change the decision.</p>
+<h3 id="when-evidence-is-conflicting">When Evidence is Conflicting</h3>
+<p><strong>Strategies:</strong>
+1. Weight by study quality
+2. Look for systematic differences (population, methods)
+3. Consider publication bias
+4. Update with most recent, rigorous evidence
+5. Conduct/await systematic review
+6. Consider if question is well-formed</p>
+<h2 id="communicating-evidence-strength">Communicating Evidence Strength</h2>
+<p><strong>Avoid:</strong>
+- Absolute certainty ("proves")
+- False balance (equal weight to unequal evidence)
+- Ignoring uncertainty
+- Cherry-picking studies</p>
+<p><strong>Better:</strong>
+- Quantify uncertainty
+- Describe strength of evidence
+- Acknowledge limitations
+- Present range of evidence
+- Distinguish established from emerging findings
+- Be clear about what is/isn't known</p></main><footer>Разбор от 4 октября 2026. Дата занятия и замедление неизвестны. Кадры — наблюдения; схемы — цели пробных действий.</footer></body></html>

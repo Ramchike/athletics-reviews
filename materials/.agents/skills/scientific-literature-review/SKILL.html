@@ -1,0 +1,98 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SKILL</title><style>
+:root{color-scheme:dark;--bg:#101820;--card:#18252f;--ink:#edf4f6;--muted:#b7c8d0;--accent:#8be6c7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.65 system-ui,sans-serif}
+main,header,footer{max-width:820px;margin:auto;padding:20px}header{padding-bottom:8px}
+header a,nav a,.filter{display:inline-block;padding:10px 12px;margin:4px 4px 4px 0;border-radius:10px;border:1px solid #46616f}
+a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}h1{font-size:clamp(27px,5vw,38px);line-height:1.2}
+h2{font-size:25px;line-height:1.35;margin:0 0 20px}h3{font-size:21px}.card{background:var(--card);border:1px solid #314855;border-radius:16px;padding:22px;margin:26px 0}
+img{display:block;width:100%;max-width:100%;height:auto;margin:12px auto;border-radius:8px}p{margin:16px 0}
+details{padding:12px;border:1px solid #46616f;border-radius:10px;margin:12px 0}summary{cursor:pointer;font-weight:600;min-height:28px}
+table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;font-size:16px}td,th{padding:10px;border:1px solid #46616f;min-width:130px;vertical-align:top}
+pre{overflow:auto;max-width:100%;padding:14px;background:#091219}code{font-size:.9em;overflow-wrap:anywhere}blockquote{border-left:3px solid var(--accent);margin:16px 0;padding-left:16px}
+.note,footer{color:var(--muted);font-size:15px}.filter{background:transparent;color:var(--ink);font:inherit;cursor:pointer}.filter[aria-pressed=true]{background:#285446}
+[hidden]{display:none!important}:focus-visible{outline:3px solid #ffcc67;outline-offset:3px}
+@media(max-width:480px){main,header,footer{padding:14px}.card{padding:16px;margin:20px 0}h2{font-size:23px}}
+</style></head><body><header><a href="../../../../">Все разборы</a><a href="../../../../starts/">Старт: карточки</a><a href="https://github.com/Ramchike/athletics-reviews">GitHub</a></header><main><hr />
+<p>name: scientific-literature-review
+description: "Builds biomedical literature searches, evidence maps and narrative/scoping/systematic-review drafts. Use for PubMed/MeSH, PICO, verified citations, research gaps and evidence updates."
+license: MIT</p>
+<hr />
+<h1 id="scientific-literature-review">Scientific Literature Review</h1>
+<p>Build a reproducible evidence trail. Do not generate a polished narrative first and search for citations afterward.</p>
+<h2 id="choose-the-review-mode">Choose the review mode</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Use when</th>
+<th>Minimum output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rapid evidence map</td>
+<td>Time is limited; landscape and gaps matter</td>
+<td>search log, source table, themes, gaps</td>
+</tr>
+<tr>
+<td>Narrative review</td>
+<td>Explain a field without claiming exhaustive coverage</td>
+<td>scoped search, representative primary evidence, limitations</td>
+</tr>
+<tr>
+<td>Scoping review</td>
+<td>Map concepts, methods, or evidence types broadly</td>
+<td>protocol, reproducible search, screening ledger, charted evidence</td>
+</tr>
+<tr>
+<td>Systematic review</td>
+<td>A focused question needs comprehensive, auditable selection</td>
+<td>protocol, multi-database search, deduplication, dual/human screening plan, risk-of-bias plan, PRISMA records</td>
+</tr>
+<tr>
+<td>Meta-analysis support</td>
+<td>Comparable effect estimates exist</td>
+<td>systematic-review foundation plus statistical protocol and human statistician review</td>
+</tr>
+</tbody>
+</table>
+<p>Never call a review “systematic” merely because many sources were read.</p>
+<h2 id="workflow">Workflow</h2>
+<ol>
+<li>Frame the question with the appropriate structure: PICO/PECO for intervention or exposure, PCC for scoping, or a mechanistic question with explicit model, perturbation, comparator, and outcome.</li>
+<li>Predefine dates, languages, study types, populations/models, outcomes, inclusion/exclusion criteria, and treatment of preprints. Record deviations.</li>
+<li>Build concept blocks with synonyms, gene/protein aliases, controlled vocabulary, and spelling variants. Read <code>references/database-search.md</code>.</li>
+<li>Search PubMed plus at least one complementary database appropriate to the topic. Preserve the exact query, database, filters, search date, result count, and PubMed Search Details/translation.</li>
+<li>Export stable identifiers and deduplicate by DOI, PMID/PMCID, accession, then normalized title/author/year. Keep a duplicate-resolution log.</li>
+<li>Screen title/abstract and then full text against the predefined criteria. For a formal systematic review, at least two independent qualified humans make final full-text eligibility decisions and resolve disagreements by a predefined process. AI can assist; two AI agents do not satisfy independent human review. If unavailable, label the output a draft with that requirement unmet.</li>
+<li>Extract study design, model/population, sample size, intervention/exposure, comparator, outcome, effect estimate, uncertainty, methods, funding/conflicts, and limitations into an evidence table.</li>
+<li>Appraise evidence using a method appropriate to the study design; do not invent a universal score. Read <code>references/evidence-appraisal.md</code>.</li>
+<li>Verify every citation against a primary bibliographic record before delivery. Read <code>references/citation-verification.md</code>.</li>
+<li>Synthesize by evidence pattern, not paper-by-paper summary. Separate replicated findings, contested findings, methodological causes of disagreement, gaps, and inference.</li>
+</ol>
+<p>For parallel discovery, optionally use the <code>deep-research</code> module in <code>research-analyst</code> when installed. Otherwise partition the sources within this workflow. This package remains usable by itself; retain its search log, source hierarchy, screening and citation-verification rules in either route.</p>
+<h2 id="non-negotiable-quality-rules">Non-negotiable quality rules</h2>
+<ul>
+<li>Prefer primary papers for scientific claims; use reviews to orient and discover primary evidence.</li>
+<li>Label preprints, conference abstracts, retractions, corrections, and expressions of concern.</li>
+<li>Never infer full-text results from an abstract or search snippet.</li>
+<li>Quote sparingly and preserve the source's meaning; do not transform correlation into causation.</li>
+<li>Do not fabricate DOI, PMID, author, journal, year, sample size, effect, or quotation.</li>
+<li>Distinguish no evidence found from evidence of no effect.</li>
+<li>Report search and access limitations, unavailable full texts, and unsearched databases.</li>
+<li>Do not claim PRISMA compliance unless every applicable checklist item and flow record is complete; otherwise say “PRISMA-informed.”</li>
+</ul>
+<h2 id="deliverable">Deliverable</h2>
+<p>Return:</p>
+<ol>
+<li>question, review mode, scope, and protocol summary;</li>
+<li>exact search log;</li>
+<li>inclusion/exclusion and screening summary;</li>
+<li>evidence table with stable identifiers;</li>
+<li>synthesis with confidence and contradictory evidence;</li>
+<li>limitations, gaps, and recommended next searches/experiments;</li>
+<li>verified references;</li>
+<li>reproducibility appendix with search date and tool/database versions when available.</li>
+</ol>
+<h2 id="retrieval-and-update-references">Retrieval and update references</h2>
+<p>Read <a href="references/tool-routing.html">tool-routing.md</a> for live capabilities, provenance, pagination and clipped-text handling; <a href="references/search-strategy.html">search-strategy.md</a> for native clinical queries and review-mode boundaries; <a href="references/literature-watch.html">literature-watch.md</a> for evidence updates. Use only the references needed for the task. Keep the user's scope and prior authorization within the host's instructions.</p></main><footer>Разбор от 4 октября 2026. Дата занятия и замедление неизвестны. Кадры — наблюдения; схемы — цели пробных действий.</footer></body></html>

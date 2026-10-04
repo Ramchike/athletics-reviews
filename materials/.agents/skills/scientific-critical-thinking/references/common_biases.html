@@ -1,0 +1,323 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>common_biases</title><style>
+:root{color-scheme:dark;--bg:#101820;--card:#18252f;--ink:#edf4f6;--muted:#b7c8d0;--accent:#8be6c7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.65 system-ui,sans-serif}
+main,header,footer{max-width:820px;margin:auto;padding:20px}header{padding-bottom:8px}
+header a,nav a,.filter{display:inline-block;padding:10px 12px;margin:4px 4px 4px 0;border-radius:10px;border:1px solid #46616f}
+a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}h1{font-size:clamp(27px,5vw,38px);line-height:1.2}
+h2{font-size:25px;line-height:1.35;margin:0 0 20px}h3{font-size:21px}.card{background:var(--card);border:1px solid #314855;border-radius:16px;padding:22px;margin:26px 0}
+img{display:block;width:100%;max-width:100%;height:auto;margin:12px auto;border-radius:8px}p{margin:16px 0}
+details{padding:12px;border:1px solid #46616f;border-radius:10px;margin:12px 0}summary{cursor:pointer;font-weight:600;min-height:28px}
+table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;font-size:16px}td,th{padding:10px;border:1px solid #46616f;min-width:130px;vertical-align:top}
+pre{overflow:auto;max-width:100%;padding:14px;background:#091219}code{font-size:.9em;overflow-wrap:anywhere}blockquote{border-left:3px solid var(--accent);margin:16px 0;padding-left:16px}
+.note,footer{color:var(--muted);font-size:15px}.filter{background:transparent;color:var(--ink);font:inherit;cursor:pointer}.filter[aria-pressed=true]{background:#285446}
+[hidden]{display:none!important}:focus-visible{outline:3px solid #ffcc67;outline-offset:3px}
+@media(max-width:480px){main,header,footer{padding:14px}.card{padding:16px;margin:20px 0}h2{font-size:23px}}
+</style></head><body><header><a href="../../../../../">Все разборы</a><a href="../../../../../starts/">Старт: карточки</a><a href="https://github.com/Ramchike/athletics-reviews">GitHub</a></header><main><h1 id="common-biases-in-scientific-research">Common Biases in Scientific Research</h1>
+<p>These are prompts to examine mechanisms, not evidence of misconduct. Connect a concern
+to the particular result and its likely consequences; use the matching formal tool when
+needed. Sources and current tool scopes are in <a href="review_sources.html">review_sources.md</a>.</p>
+<h2 id="cognitive-biases-affecting-researchers">Cognitive Biases Affecting Researchers</h2>
+<h3 id="1-confirmation-bias">1. Confirmation Bias</h3>
+<p><strong>Description:</strong> Tendency to search for, interpret, and recall information that confirms preexisting beliefs.</p>
+<p><strong>Manifestations:</strong>
+- Designing studies that can only support the hypothesis
+- Interpreting ambiguous results as supportive
+- Remembering hits and forgetting misses
+- Selectively citing literature that agrees</p>
+<p><strong>Mitigation:</strong>
+- Preregister hypotheses and analysis plans
+- Actively seek disconfirming evidence
+- Use blinded data analysis
+- Consider alternative hypotheses</p>
+<h3 id="2-hindsight-bias-i-knew-it-all-along-effect">2. Hindsight Bias (I-Knew-It-All-Along Effect)</h3>
+<p><strong>Description:</strong> After an event, people perceive it as having been more predictable than it actually was.</p>
+<p><strong>Manifestations:</strong>
+- HARKing (Hypothesizing After Results are Known)
+- Claiming predictions that weren't made
+- Underestimating surprise at results</p>
+<p><strong>Mitigation:</strong>
+- Document predictions before data collection
+- Preregister studies
+- Distinguish exploratory from confirmatory analyses</p>
+<h3 id="3-publication-bias-file-drawer-problem">3. Publication Bias (File Drawer Problem)</h3>
+<p><strong>Description:</strong> Positive/significant results are more likely to be published than negative/null results.</p>
+<p><strong>Manifestations:</strong>
+- Literature appears to support effects that don't exist
+- Overestimation of effect sizes
+- Inability to estimate true effects from published literature</p>
+<p><strong>Mitigation:</strong>
+- Publish null results
+- Use preregistration and registered reports
+- Conduct systematic reviews with grey literature
+- When appropriate, examine funnel asymmetry as a small-study-effects diagnostic;
+  asymmetry does not uniquely diagnose publication bias</p>
+<h3 id="4-anchoring-bias">4. Anchoring Bias</h3>
+<p><strong>Description:</strong> Over-reliance on the first piece of information encountered.</p>
+<p><strong>Manifestations:</strong>
+- Initial hypotheses unduly influence interpretation
+- First studies in a field set expectations
+- Pilot data biases main study interpretation</p>
+<p><strong>Mitigation:</strong>
+- Consider multiple initial hypotheses
+- Evaluate evidence independently
+- Use structured decision-making</p>
+<h3 id="5-availability-heuristic">5. Availability Heuristic</h3>
+<p><strong>Description:</strong> Overestimating likelihood of events based on how easily examples come to mind.</p>
+<p><strong>Manifestations:</strong>
+- Overemphasizing recent or dramatic findings
+- Neglecting base rates
+- Anecdotal evidence overshadowing statistics</p>
+<p><strong>Mitigation:</strong>
+- Consult systematic reviews, not memorable papers
+- Consider base rates explicitly
+- Use statistical thinking, not intuition</p>
+<h3 id="6-bandwagon-effect">6. Bandwagon Effect</h3>
+<p><strong>Description:</strong> Adopting beliefs because many others hold them.</p>
+<p><strong>Manifestations:</strong>
+- Following research trends without critical evaluation
+- Citing widely-cited papers without reading
+- Accepting "textbook knowledge" uncritically</p>
+<p><strong>Mitigation:</strong>
+- Evaluate evidence independently
+- Read original sources
+- Question assumptions</p>
+<h3 id="7-belief-perseverance">7. Belief Perseverance</h3>
+<p><strong>Description:</strong> Maintaining beliefs even after evidence disproving them.</p>
+<p><strong>Manifestations:</strong>
+- Defending theories despite contradictory evidence
+- Finding ad hoc explanations for discrepant results
+- Dismissing replication failures</p>
+<p><strong>Mitigation:</strong>
+- Explicitly consider what evidence would change your mind
+- Update beliefs based on evidence
+- Distinguish between theories and ego</p>
+<h3 id="8-outcome-bias">8. Outcome Bias</h3>
+<p><strong>Description:</strong> Judging decisions based on outcomes rather than the quality of the decision at the time.</p>
+<p><strong>Manifestations:</strong>
+- Valuing lucky guesses over sound methodology
+- Dismissing good studies with null results
+- Rewarding sensational findings over rigorous methods</p>
+<p><strong>Mitigation:</strong>
+- Evaluate methodology independently of results
+- Value rigor and transparency
+- Recognize role of chance</p>
+<h2 id="experimental-and-methodological-biases">Experimental and Methodological Biases</h2>
+<h3 id="9-selection-bias">9. Selection Bias</h3>
+<p><strong>Description:</strong> Selection can impair representativeness or create biased exposure-outcome
+associations by conditioning on participation, survival, or another common effect. These
+are related but distinct problems; a nonrepresentative sample is not automatically biased
+for every within-sample contrast.</p>
+<p><strong>Types:</strong>
+- <strong>Sampling bias:</strong> Non-random sample
+- <strong>Attrition bias:</strong> Systematic dropout
+- <strong>Volunteer bias:</strong> Self-selected participants differ
+- <strong>Berkson's bias:</strong> Conditioning on hospitalization influenced by both exposure and
+  disease can create an association (collider bias)
+- <strong>Survivorship bias:</strong> Only examining "survivors"</p>
+<p><strong>Detection:</strong>
+- Compare characteristics of participants vs. target population
+- Analyze dropout patterns
+- Consider who is missing from the sample</p>
+<p><strong>Mitigation:</strong>
+- Random sampling
+- Track and analyze non-responders
+- Use strategies to minimize dropout
+- Report participant flow diagrams</p>
+<h3 id="10-observer-bias-detection-bias">10. Observer Bias (Detection Bias)</h3>
+<p><strong>Description:</strong> Researchers' expectations influence observations or measurements.</p>
+<p><strong>Manifestations:</strong>
+- Measuring outcomes differently across groups
+- Interpreting ambiguous results based on group assignment
+- Unconsciously cueing participants</p>
+<p><strong>Mitigation:</strong>
+- Blinding of observers/assessors
+- Objective, automated measurements
+- Standardized protocols
+- Inter-rater reliability checks</p>
+<h3 id="11-performance-bias">11. Performance Bias</h3>
+<p><strong>Description:</strong> Systematic differences in care provided to comparison groups.</p>
+<p><strong>Manifestations:</strong>
+- Treating experimental group differently
+- Providing additional attention to one group
+- Differential adherence to protocols</p>
+<p><strong>Mitigation:</strong>
+- Standardize all procedures
+- Blind participants and providers
+- Use placebo controls
+- Monitor protocol adherence</p>
+<h3 id="12-measurement-bias-information-bias">12. Measurement Bias (Information Bias)</h3>
+<p><strong>Description:</strong> Systematic errors in how variables are measured.</p>
+<p><strong>Types:</strong>
+- <strong>Recall bias:</strong> Systematic differences in accuracy of recall
+- <strong>Social desirability bias:</strong> Responding in socially acceptable ways
+- <strong>Interviewer bias:</strong> Interviewer's characteristics affect responses
+- <strong>Instrument bias:</strong> Measurement tools systematically err</p>
+<p><strong>Mitigation:</strong>
+- Use validated, objective measures
+- Standardize data collection
+- Blind participants to hypotheses
+- Verify self-reports with objective data</p>
+<h3 id="13-confounding-bias">13. Confounding Bias</h3>
+<p><strong>Description:</strong> Effect of extraneous variable mixed with the variable of interest.</p>
+<p><strong>Examples:</strong>
+- Age confounding relationship between exercise and health
+- Socioeconomic status confounding education and outcomes
+- Indication bias in treatment studies</p>
+<p><strong>Mitigation:</strong>
+- Randomization
+- Matching
+- Statistical adjustment
+- Stratification
+- Restriction</p>
+<p>Choose adjustment using the causal question and temporal structure. Adjusting every
+measured variable can induce collider bias or remove part of the effect through a mediator;
+matching and regression do not eliminate unmeasured confounding by themselves.</p>
+<h3 id="14-reporting-bias">14. Reporting Bias</h3>
+<p><strong>Description:</strong> Selective reporting of results.</p>
+<p><strong>Types:</strong>
+- <strong>Outcome reporting bias:</strong> Selectively reporting outcomes
+- <strong>Time-lag bias:</strong> Delayed publication of negative results
+- <strong>Language bias:</strong> Publishing positive results in English
+- <strong>Citation bias:</strong> Preferentially citing positive studies</p>
+<p><strong>Mitigation:</strong>
+- Preregister all outcomes
+- Report all planned analyses
+- Distinguish primary from secondary outcomes
+- Use study registries</p>
+<h3 id="15-spectrum-bias">15. Spectrum Bias</h3>
+<p><strong>Description:</strong> Test performance varies depending on the spectrum of disease severity in the sample.</p>
+<p><strong>Manifestations:</strong>
+- Diagnostic tests appearing more accurate in extreme cases
+- Treatment effects differing by severity</p>
+<p><strong>Mitigation:</strong>
+- Test in representative samples
+- Report performance across disease spectrum
+- Avoid unrepresentative two-gate diagnostic samples of extreme cases and healthy controls
+  when the target is accuracy among patients presenting for testing</p>
+<h3 id="16-lead-time-bias">16. Lead-Time Bias</h3>
+<p><strong>Description:</strong> Apparent survival benefit due to earlier detection, not improved outcomes.</p>
+<p><strong>Example:</strong>
+- Screening detecting disease earlier makes survival seem longer, even if death occurs at same age</p>
+<p><strong>Mitigation:</strong>
+- Measure mortality, not just survival from diagnosis
+- Use randomized screening trials
+- Consider length-time and overdiagnosis bias</p>
+<h3 id="17-length-time-bias">17. Length-Time Bias</h3>
+<p><strong>Description:</strong> Screening disproportionately detects slower-growing, less aggressive cases.</p>
+<p><strong>Example:</strong>
+- Slow-growing cancers detected more often than fast-growing ones, making screening appear beneficial</p>
+<p><strong>Mitigation:</strong>
+- Randomized trials with mortality endpoints
+- Consider disease natural history</p>
+<h3 id="18-response-bias">18. Response Bias</h3>
+<p><strong>Description:</strong> Systematic pattern in how participants respond.</p>
+<p><strong>Types:</strong>
+- <strong>Acquiescence bias:</strong> Tendency to agree
+- <strong>Extreme responding:</strong> Always choosing extreme options
+- <strong>Neutral responding:</strong> Avoiding extreme responses
+- <strong>Demand characteristics:</strong> Responding based on perceived expectations</p>
+<p><strong>Mitigation:</strong>
+- Mix positive and negative items
+- Use multiple response formats
+- Blind participants to hypotheses
+- Use behavioral measures</p>
+<h2 id="statistical-and-analysis-biases">Statistical and Analysis Biases</h2>
+<h3 id="19-p-hacking-data-dredging">19. P-Hacking (Data Dredging)</h3>
+<p><strong>Description:</strong> Manipulating data or analyses until significant results emerge.</p>
+<p><strong>Manifestations:</strong>
+- Collecting data until significance reached
+- Testing multiple outcomes, reporting only significant ones
+- Trying multiple analysis methods
+- Excluding "outliers" to reach significance
+- Subgroup analyses until finding significance</p>
+<p><strong>Detection:</strong>
+- Clustering just below .05 can motivate further checks; it is not proof of p-hacking
+- Many researcher degrees of freedom
+- Undisclosed analyses
+- Fishing expeditions</p>
+<p><strong>Mitigation:</strong>
+- Preregister analysis plans
+- Report all analyses conducted
+- Correct for multiple comparisons
+- Distinguish exploratory from confirmatory</p>
+<h3 id="20-harking-hypothesizing-after-results-are-known">20. HARKing (Hypothesizing After Results are Known)</h3>
+<p><strong>Description:</strong> Presenting post hoc hypotheses as if they were predicted a priori.</p>
+<p><strong>Why problematic:</strong>
+- Inflates apparent evidence
+- Conflates exploration with confirmation
+- Misrepresents the scientific process</p>
+<p><strong>Mitigation:</strong>
+- Preregister hypotheses
+- Clearly label exploratory analyses
+- Require replication of unexpected findings</p>
+<h3 id="21-base-rate-neglect">21. Base Rate Neglect</h3>
+<p><strong>Description:</strong> Ignoring prior probability when evaluating evidence.</p>
+<p><strong>Example:</strong>
+- With prevalence 1%, sensitivity 95%, and specificity 95%, the positive predictive value
+  is <code>0.95*0.01 / (0.95*0.01 + 0.05*0.99) = 0.1610</code> (16.1%). Overall "accuracy"
+  alone is insufficient; this teaching calculation assumes these quantities apply to
+  the tested population.</p>
+<p><strong>Mitigation:</strong>
+- Always consider base rates/prior probability
+- Use Bayesian reasoning
+- Report positive and negative predictive values</p>
+<h3 id="22-regression-to-the-mean">22. Regression to the Mean</h3>
+<p><strong>Description:</strong> Extreme measurements tend to be followed by less extreme ones.</p>
+<p><strong>Manifestations:</strong>
+- Treatment effects in extreme groups may be regression artifacts
+- "Sophomore slump" in high performers</p>
+<p><strong>Mitigation:</strong>
+- Use control groups
+- Consider natural variation
+- Don't select based on extreme baseline values without controls</p>
+<h3 id="23-texas-sharpshooter-fallacy">23. Texas Sharpshooter Fallacy</h3>
+<p><strong>Description:</strong> Selecting data after seeing patterns, like shooting arrows then drawing targets around clusters.</p>
+<p><strong>Manifestations:</strong>
+- Finding patterns in random data
+- Subgroup analyses selected post hoc
+- Geographic clustering studies without correction</p>
+<p><strong>Mitigation:</strong>
+- Prespecify hypotheses
+- Correct for multiple comparisons
+- Replicate findings in independent data</p>
+<h2 id="reducing-bias-best-practices">Reducing Bias: Best Practices</h2>
+<h3 id="study-design">Study Design</h3>
+<ol>
+<li>Randomization</li>
+<li>Blinding specified by role and information concealed</li>
+<li>Control groups</li>
+<li>Adequate sample size</li>
+<li>Preregistration</li>
+</ol>
+<h3 id="data-collection">Data Collection</h3>
+<ol>
+<li>Standardized protocols</li>
+<li>Validated instruments</li>
+<li>Objective measures when possible</li>
+<li>Multiple observers/raters</li>
+<li>Complete data collection</li>
+</ol>
+<h3 id="analysis">Analysis</h3>
+<ol>
+<li>Analysis aligned to assignment/adherence estimand, with explicit missing-data assumptions</li>
+<li>Prespecified analyses</li>
+<li>Appropriate statistical tests</li>
+<li>Multiple comparison corrections</li>
+<li>Sensitivity analyses</li>
+</ol>
+<h3 id="reporting">Reporting</h3>
+<ol>
+<li>Complete transparency</li>
+<li>CONSORT, PRISMA, or similar guidelines</li>
+<li>Report all outcomes</li>
+<li>Distinguish exploratory from confirmatory</li>
+<li>Share data and code</li>
+</ol>
+<h3 id="meta-level">Meta-Level</h3>
+<ol>
+<li>Adversarial collaboration</li>
+<li>Replication studies</li>
+<li>Open science practices</li>
+<li>Peer review</li>
+<li>Systematic reviews</li>
+</ol></main><footer>Разбор от 4 октября 2026. Дата занятия и замедление неизвестны. Кадры — наблюдения; схемы — цели пробных действий.</footer></body></html>

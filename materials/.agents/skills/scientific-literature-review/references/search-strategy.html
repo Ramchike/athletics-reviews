@@ -1,0 +1,252 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>search-strategy</title><style>
+:root{color-scheme:dark;--bg:#101820;--card:#18252f;--ink:#edf4f6;--muted:#b7c8d0;--accent:#8be6c7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.65 system-ui,sans-serif}
+main,header,footer{max-width:820px;margin:auto;padding:20px}header{padding-bottom:8px}
+header a,nav a,.filter{display:inline-block;padding:10px 12px;margin:4px 4px 4px 0;border-radius:10px;border:1px solid #46616f}
+a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}h1{font-size:clamp(27px,5vw,38px);line-height:1.2}
+h2{font-size:25px;line-height:1.35;margin:0 0 20px}h3{font-size:21px}.card{background:var(--card);border:1px solid #314855;border-radius:16px;padding:22px;margin:26px 0}
+img{display:block;width:100%;max-width:100%;height:auto;margin:12px auto;border-radius:8px}p{margin:16px 0}
+details{padding:12px;border:1px solid #46616f;border-radius:10px;margin:12px 0}summary{cursor:pointer;font-weight:600;min-height:28px}
+table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;font-size:16px}td,th{padding:10px;border:1px solid #46616f;min-width:130px;vertical-align:top}
+pre{overflow:auto;max-width:100%;padding:14px;background:#091219}code{font-size:.9em;overflow-wrap:anywhere}blockquote{border-left:3px solid var(--accent);margin:16px 0;padding-left:16px}
+.note,footer{color:var(--muted);font-size:15px}.filter{background:transparent;color:var(--ink);font:inherit;cursor:pointer}.filter[aria-pressed=true]{background:#285446}
+[hidden]{display:none!important}:focus-visible{outline:3px solid #ffcc67;outline-offset:3px}
+@media(max-width:480px){main,header,footer{padding:14px}.card{padding:16px;margin:20px 0}h2{font-size:23px}}
+</style></head><body><header><a href="../../../../../">Все разборы</a><a href="../../../../../starts/">Старт: карточки</a><a href="https://github.com/Ramchike/athletics-reviews">GitHub</a></header><main><h1 id="search-strategy">Search Strategy</h1>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#1-define-the-review-mode">Define the review mode</a></li>
+<li><a href="#2-build-the-question">Build the question</a></li>
+<li><a href="#3-construct-the-query">Construct the query</a></li>
+<li><a href="#4-balance-sensitivity-and-precision">Balance sensitivity and precision</a></li>
+<li><a href="#5-validate-the-search">Validate the search</a></li>
+<li><a href="#6-execute-complementary-searches">Execute complementary searches</a></li>
+<li><a href="#7-keep-a-reproducible-log">Keep a reproducible log</a></li>
+<li><a href="#8-screen-without-moving-the-goalposts">Screen without moving the goalposts</a></li>
+</ul>
+<h2 id="1-define-the-review-mode">1. Define the review mode</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Suitable request</th>
+<th>Minimum documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Targeted lookup</td>
+<td>One fact, paper, guideline, DOI, or safety signal</td>
+<td>Search terms, sources checked, date</td>
+</tr>
+<tr>
+<td>Rapid evidence scan</td>
+<td>Practical answer under time constraints</td>
+<td>PICO/PECO, selected databases, exact core query, limits, key exclusions</td>
+</tr>
+<tr>
+<td>Structured review</td>
+<td>Broad academic or clinical synthesis</td>
+<td>Protocol-like criteria, multiple databases, complete log, deduplication, appraisal</td>
+</tr>
+<tr>
+<td>Scoping review</td>
+<td>Map concepts, populations, designs, or gaps</td>
+<td>PCC, broad source set, transparent screening and charting</td>
+</tr>
+<tr>
+<td>Systematic review</td>
+<td>Exhaustive predefined review intended for formal use/publication</td>
+<td>Protocol/registration where appropriate, information-specialist-quality strategy, full reproducibility, PRISMA/PRISMA-S</td>
+</tr>
+</tbody>
+</table>
+<p>Do not call a rapid scan systematic. State what the chosen mode can and cannot establish.</p>
+<h2 id="2-build-the-question">2. Build the question</h2>
+<ul>
+<li><strong>PICO:</strong> Population, Intervention, Comparator, Outcome.</li>
+<li><strong>PECO:</strong> Population, Exposure, Comparator, Outcome.</li>
+<li><strong>PCC:</strong> Population, Concept, Context.</li>
+<li><strong>SPIDER:</strong> Sample, Phenomenon of Interest, Design, Evaluation, Research type.</li>
+</ul>
+<p>Create a concept table:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Controlled vocabulary</th>
+<th>Free-text synonyms</th>
+<th>Turkish/local variants</th>
+<th>Exclusions only if essential</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Population/condition</td>
+<td>MeSH/Emtree/subject heading</td>
+<td>acronyms, old/new names, spelling variants</td>
+<td>Turkish names and diacritics</td>
+<td>justified exclusions</td>
+</tr>
+<tr>
+<td>Intervention/exposure</td>
+<td>controlled term</td>
+<td>generic, brand, technique, dose, device</td>
+<td>local names</td>
+<td>justified exclusions</td>
+</tr>
+<tr>
+<td>Outcome/design</td>
+<td>usually omit initially if recall would suffer</td>
+<td>outcome terms or validated design filter</td>
+<td>local terms</td>
+<td>justified exclusions</td>
+</tr>
+</tbody>
+</table>
+<p>Do not force every PICO element into the query. Comparator and outcome terms often reduce recall.</p>
+<h2 id="3-construct-the-query">3. Construct the query</h2>
+<ol>
+<li>Combine synonyms within a concept using <code>OR</code>.</li>
+<li>Combine concepts using <code>AND</code>.</li>
+<li>Use phrase searching, truncation, and proximity only where the database supports them.</li>
+<li>Combine controlled vocabulary with title/abstract keywords.</li>
+<li>Inspect automatic term mapping and exploded headings rather than assuming they worked.</li>
+<li>Use <code>NOT</code> rarely; it can silently remove relevant studies.</li>
+<li>Apply date, language, age, human, or publication-type filters only when justified and document them.</li>
+</ol>
+<h3 id="pubmed-pattern">PubMed pattern</h3>
+<pre><code class="language-text">(
+  &quot;Condition&quot;[Mesh]
+  OR condition*[tiab]
+  OR &quot;older term&quot;[tiab]
+)
+AND
+(
+  &quot;Intervention&quot;[Mesh]
+  OR intervention*[tiab]
+  OR synonym*[tiab]
+)
+</code></pre>
+<p>Useful PubMed fields include <code>[Mesh]</code>, <code>[tiab]</code>, <code>[pt]</code>, <code>[dp]</code>, and <code>[lang]</code>. Confirm current syntax in the PubMed User Guide. Do not rely on title-only searching unless precision is intentionally prioritized.</p>
+<h3 id="translate-do-not-copy">Translate, do not copy</h3>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Common controlled vocabulary or field form</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PubMed</td>
+<td>MeSH; <code>[Mesh]</code>, <code>[tiab]</code></td>
+</tr>
+<tr>
+<td>Embase</td>
+<td>Emtree; <code>/exp</code>, <code>:ti,ab,kw</code> depending on interface</td>
+</tr>
+<tr>
+<td>CINAHL/EBSCO</td>
+<td>CINAHL Headings; <code>MH</code>, <code>TI</code>, <code>AB</code></td>
+</tr>
+<tr>
+<td>Scopus</td>
+<td><code>TITLE-ABS-KEY(...)</code></td>
+</tr>
+<tr>
+<td>Web of Science</td>
+<td><code>TS=(...)</code></td>
+</tr>
+<tr>
+<td>Cochrane</td>
+<td>MeSH descriptors plus title/abstract/keyword fields</td>
+</tr>
+<tr>
+<td>PEDro</td>
+<td>Advanced Search fields for therapy, problem, body part, subdiscipline, method, and title/abstract</td>
+</tr>
+<tr>
+<td>TR Dizin / DergiPark / YÖK Thesis</td>
+<td>Simpler Turkish and English keyword combinations; use available field filters</td>
+</tr>
+</tbody>
+</table>
+<p>Interfaces change. Verify exact syntax in the live help page before presenting a query as executable.</p>
+<h3 id="pedro-search-card">PEDro search card</h3>
+<p>Use <a href="https://pedro.org.au/english/learn/search-help/">PEDro Advanced Search help</a> rather than PubMed syntax:</p>
+<ul>
+<li>Search English terms in <strong>Abstract &amp; Title</strong>; add only decision-relevant therapy, problem, body-part, subdiscipline or method fields. Start broad rather than filling every field.</li>
+<li>Do not type literal <code>AND</code>, <code>OR</code>, <code>NOT</code>, MeSH tags or PubMed parentheses into free-text fields. Words in one field are combined with implicit AND.</li>
+<li>Select <strong>Match all search terms (AND)</strong> or <strong>Match any search term (OR)</strong> to combine fields. PEDro cannot mix both operators in one query.</li>
+<li>To emulate a synonym block plus a condition, run separate queries and merge/deduplicate their records. For example, search <code>"low back pain" exercise*</code>, then <code>"low back pain" "motor control"</code>; log each query and all chosen fields. This is an illustrative starting point, not a validated complete strategy.</li>
+<li>Quotation marks match a phrase; <code>*</code> expands word variants and <code>@</code> replaces one character. Do not place a wildcard inside a quoted phrase.</li>
+<li>Check result pages and source update dates. PEDro's relevance/score ordering is not a filter for clinical benefit; do not screen only the first page or high-score trials.</li>
+<li>Test sentinel records and relax phrase/field restrictions if relevant studies are missed. Verify the live interface before execution.</li>
+</ul>
+<h2 id="4-balance-sensitivity-and-precision">4. Balance sensitivity and precision</h2>
+<p>Create two variants when useful:</p>
+<ul>
+<li><strong>Sensitive:</strong> broad synonyms, controlled vocabulary, minimal filters; use for systematic or safety searches.</li>
+<li><strong>Precise:</strong> core concepts plus justified fields or validated design filters; use for quick triage.</li>
+</ul>
+<p>Use validated search filters from authoritative sources for RCTs, diagnostic studies, or other designs. Do not invent a methodological filter. For systematic reviews, avoid filters that exclude newly indexed or incompletely tagged records unless tested.</p>
+<h2 id="5-validate-the-search">5. Validate the search</h2>
+<ul>
+<li>Identify sentinel studies from trusted reviews, guidelines, expert-provided citations, or scoping searches.</li>
+<li>Confirm that the strategy retrieves the sentinel set.</li>
+<li>Inspect a sample of relevant and irrelevant results.</li>
+<li>Add missed terminology and remove only demonstrably noisy terms.</li>
+<li>For formal reviews, consider independent peer review of the strategy using PRESS principles.</li>
+</ul>
+<h2 id="6-execute-complementary-searches">6. Execute complementary searches</h2>
+<ul>
+<li>Run the database-specific strategies.</li>
+<li>Search references of included studies and strong reviews.</li>
+<li>Search forward citations in a citation database.</li>
+<li>Use similar-article tools.</li>
+<li>Search trial registries, review registries, theses, and preprints when unpublished evidence matters.</li>
+<li>Search corrections, retractions, and later versions.</li>
+<li>Stop according to the predefined mode, not because the first plausible answer appeared.</li>
+</ul>
+<h3 id="use-an-explicit-stopping-rule">Use an explicit stopping rule</h3>
+<ul>
+<li>For a targeted or rapid scan, complete the predefined core database set, one complementary discovery/citation source, and the relevant registry when unpublished evidence matters.</li>
+<li>Perform at least one backward- and forward-citation pass on the key eligible papers.</li>
+<li>Stop after a documented second search/citation iteration produces no new eligible or conclusion-changing evidence, or when the agreed time limit is reached.</li>
+<li>State that this is a pragmatic saturation rule, not proof of exhaustive retrieval.</li>
+<li>For a systematic review, follow the protocol and database plan; do not replace exhaustive methods with a saturation shortcut.</li>
+</ul>
+<h3 id="export-and-deduplicate-when-the-corpus-is-material">Export and deduplicate when the corpus is material</h3>
+<ul>
+<li>Preserve raw database exports in a standard format such as RIS, NBIB, BibTeX, or CSV when available.</li>
+<li>Retain source and search-date fields before merging.</li>
+<li>Deduplicate with a reference manager, review platform, or transparent script using DOI/PMID first, then normalized title, year, and author checks.</li>
+<li>Review uncertain matches manually and preserve the deduplication rule and counts.</li>
+<li>If the active environment cannot export or deduplicate, state the limitation and provide exact user-executable steps instead of claiming completion.</li>
+</ul>
+<h2 id="7-keep-a-reproducible-log">7. Keep a reproducible log</h2>
+<pre><code class="language-markdown">| Database | Platform/provider | Exact query | Date searched | Limits/sort | Total found | Retrieved | Reviewed | Access/issues |
+|---|---|---|---|---|---:|---:|---:|---|
+| PubMed | PubMed direct | ... | YYYY-MM-DD | none | 123 | 123 | 123 | complete records; full-text access logged separately |
+</code></pre>
+<p>Also record:</p>
+<ul>
+<li>inclusion and exclusion criteria;</li>
+<li>duplicate-removal method;</li>
+<li>screening counts and reasons for full-text exclusion;</li>
+<li>unavailable full texts;</li>
+<li>hand-searching and citation-chasing steps;</li>
+<li>deviations from the original plan.</li>
+</ul>
+<p>For publication-quality reviews, preserve a PRISMA flow and follow the current PRISMA-S reporting guidance.</p>
+<h2 id="8-screen-without-moving-the-goalposts">8. Screen without moving the goalposts</h2>
+<ul>
+<li>Apply criteria defined before seeing the results.</li>
+<li>Separate title/abstract screening from full-text eligibility.</li>
+<li>Do not exclude a paper merely because its result conflicts with the emerging conclusion.</li>
+<li>Link companion papers and avoid double-counting the same participant cohort.</li>
+<li>Translate non-English records when feasible rather than silently discarding them.</li>
+<li>Mark unresolved eligibility decisions and their potential impact.</li>
+<li>For a formal systematic review, use at least two independent qualified human reviewers for final full-text eligibility, with a predefined disagreement-resolution process. AI may assist triage/extraction; two AI agents do not replace independent human reviewers. If this is unavailable, deliver a review draft and flag the unmet requirement. See <a href="https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-04">Cochrane Handbook chapter 4</a>.</li>
+</ul></main><footer>Разбор от 4 октября 2026. Дата занятия и замедление неизвестны. Кадры — наблюдения; схемы — цели пробных действий.</footer></body></html>
