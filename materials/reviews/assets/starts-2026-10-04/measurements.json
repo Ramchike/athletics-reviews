@@ -2,7 +2,7 @@
   {
     "source": "media/start-review-2026-10-04/3579-wall-key/frame-0001.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-wall.png",
-    "title": "Красный — IMG_3579, 1:03,8 — поднятая нога",
+    "title": "Рамир — IMG_3579, 1:03,8 — поднятая нога",
     "points": {
       "s": [
         774,
@@ -222,13 +222,13 @@
       }
     ],
     "source_sha256": "0b3ab48731b64470853c07111cec946ef4ec1a514795c06f84e0738f3bafe9e9",
-    "output_sha256": "25d845723ef5c67f5a32cda244557e3be2e712b741454b92b6999d50582c0193",
+    "output_sha256": "5a12a6b07f1de9af6ab1490c1f8936c0b113ca0e195cedac05552c3d0e685e30",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-white-exit-actual/frame-0024.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/white-contact-1.png",
-    "title": "Друг: 3-point — контакт 1 / область опоры",
+    "title": "Миша: 3-point — контакт 1 / область опоры",
     "points": {
       "shoulder": [
         1697,
@@ -289,13 +289,13 @@
       }
     ],
     "source_sha256": "a7177d58c954c788e235e16903a3eba872c4316fdc08b4f0fbc0f76b8df09720",
-    "output_sha256": "ff1b41b1812a9e0596587d7ff2b452f47969635250848d4e093fb6a9f83fe9b3",
+    "output_sha256": "2e2c657e9803a70135805e5db8f0932fda336640743fa4f8ecb317573b03ac51",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3587-first-contacts/frame-0132.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-contact-1.png",
-    "title": "Красный: Falling — контакт 1 / область опоры",
+    "title": "Рамир: Falling — контакт 1 / область опоры",
     "points": {
       "shoulder": [
         1254,
@@ -385,13 +385,13 @@
       }
     ],
     "source_sha256": "475b7a22a614c4453f5c596e13cf8d2504dec497a7b19e10ac1aa66f8994d267",
-    "output_sha256": "a8a2e4ed6046dec7f9b76f8f70f21bcb4a200e552dcd9f0b5f5f7571db411a04",
+    "output_sha256": "623913b947a66c7600d440996f59bda7da6f7fdd0b6e4b0d4613a53d8bda6ea2",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-white-exit-actual/frame-0079.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/white-contact-4-final.png",
-    "title": "Друг: 3-point — контакт 4 / область опоры",
+    "title": "Миша: 3-point — контакт 4 / область опоры",
     "points": {
       "shoulder": [
         1229,
@@ -453,13 +453,13 @@
       }
     ],
     "source_sha256": "887674d8599271f0d4bb3083501a387582384a45ec80c030a92a61044b2ec411",
-    "output_sha256": "ef2aa96815cdad8672628d0ab0bfa6b8e887893ced841df928cf34d8cc08e66b",
+    "output_sha256": "cf639a01bb8809dd2093bdbf8ba7dc9fe4411d11d1e9b5c33cce0f2b53d53bb1",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-red-low-actual/frame-0073.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-low-contact-2.png",
-    "title": "Красный: низкий старт — область контакта 2",
+    "title": "Рамир: низкий старт — область контакта 2",
     "points": {
       "shoulder": [
         1543,
@@ -519,13 +519,13 @@
       }
     ],
     "source_sha256": "241e839a3552388d00d11b9a602e98c966722788d3109bc6a8215183de9b49f8",
-    "output_sha256": "b868bee5ea196ee7abd81c4bbeb6a93323b4c0bfa89f8ab022ec65863377b311",
+    "output_sha256": "778cea8e8ed22a5216035223818795f3ae4c67feedcb9f810713dd7ce9670981",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-red-low-actual/frame-0123.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-low-contact-5.png",
-    "title": "Красный: низкий старт — область контакта 5",
+    "title": "Рамир: низкий старт — область контакта 5",
     "points": {
       "shoulder": [
         915,
@@ -585,13 +585,13 @@
       }
     ],
     "source_sha256": "101c9e62c3c6b73a3361af0ceb3788e967eea4648073c0b3f444e369a0bfce32",
-    "output_sha256": "4d925845fb14c11a88c235e70e43d2400485f733eb62e99c6ac3dec92bbdefaa",
+    "output_sha256": "11565040e2fa9696a5719e41a1ad5df6404b843786283eda673bfda8466937b3",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-white-exit-actual/frame-0046.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/white-contact-2.png",
-    "title": "Друг: 3-point — контакт 2 / область опоры",
+    "title": "Миша: 3-point — контакт 2 / область опоры",
     "points": {
       "shoulder": [
         1527,
@@ -681,13 +681,13 @@
       }
     ],
     "source_sha256": "224d2dd9c11ede134b9bf4da071fba5f24481251e62031f724a436ab497b9399",
-    "output_sha256": "ce3b0c7ddddacb1a54499406174a3f39f2310fd7fa2b2729e69365e98e3f2a49",
+    "output_sha256": "a575120016289d11b7c9a58e069b88d2e70b5e0d3b5efa7157f76e3fb8090c6e",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3587-first-contacts/frame-0180.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-contact-4.png",
-    "title": "Красный: Falling — контакт 4 / область опоры",
+    "title": "Рамир: Falling — контакт 4 / область опоры",
     "points": {
       "shoulder": [
         759,
@@ -777,13 +777,13 @@
       }
     ],
     "source_sha256": "6530fd0e89d34eade9191cabac39c423b325d290ec5807347aff93e12a2560d9",
-    "output_sha256": "3b7a95ee48857fc1f634f7c173c79e9993e1f687ff29c5826f3b350fb54a1b6f",
+    "output_sha256": "043d9e00f80955f96ea29c68cbf75d9e7d9f9b9d7da346e50ae8fe0cfd802dfb",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3583-wall-key/frame-0001.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/white-wall.png",
-    "title": "Друг — IMG_3583, 0:46,2 — поднятая нога",
+    "title": "Миша — IMG_3583, 0:46,2 — поднятая нога",
     "points": {
       "s": [
         865,
@@ -1002,13 +1002,13 @@
       }
     ],
     "source_sha256": "b70e4fd724c1e9662f397974d53320b2d86fa5655262945e41faeb7c531c5563",
-    "output_sha256": "547091afbe815d13ea2ab967f75fe7088e50ddf8363a7f90489adc6f1e4c2438",
+    "output_sha256": "180bce7dd3428777b976f0275b9f2348ed35ba1f0506792acc76869b0c5dd9f0",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3587-first-contacts/frame-0147.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-contact-2.png",
-    "title": "Красный: Falling — контакт 2 / область опоры",
+    "title": "Рамир: Falling — контакт 2 / область опоры",
     "points": {
       "shoulder": [
         1138,
@@ -1098,13 +1098,13 @@
       }
     ],
     "source_sha256": "8acd0aa6ef7958e455c712502c03357f10dfa7d645a9e3d50f12e26dbefec705",
-    "output_sha256": "2f72a60523f022feb4fc9988b190b2862b8950a98c9e506036e52ebfad234d16",
+    "output_sha256": "c09410206e811ecbc4ef7063f5b639b9093816e876ab3999f8e52f25fa53f600",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3587-first-contacts/frame-0163.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-contact-3.png",
-    "title": "Красный: Falling — контакт 3 / область опоры",
+    "title": "Рамир: Falling — контакт 3 / область опоры",
     "points": {
       "shoulder": [
         973,
@@ -1194,13 +1194,13 @@
       }
     ],
     "source_sha256": "2a3d25540ac3371f3a0716de6d9225c4bda94178d06e29d2e022f75cbdfa77a6",
-    "output_sha256": "143ca0d6b4ee85f6e010902fc5d04cc84f5881eb01932c3c717c0a75117afdbb",
+    "output_sha256": "163f1061a0ddfa9ad806ea5a9264ea2abd8a12dc6768017aa231ef9845fa3c3a",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-white-exit-actual/frame-0069.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/white-contact-3-final.png",
-    "title": "Друг: 3-point — контакт 3 / область опоры",
+    "title": "Миша: 3-point — контакт 3 / область опоры",
     "points": {
       "shoulder": [
         1345,
@@ -1261,13 +1261,13 @@
       }
     ],
     "source_sha256": "61d2caca128fde15b1884e064466a0aff241673d399c86fe5e617851904caebe",
-    "output_sha256": "49a3b22bac83228b17fa82cd579592215c38182a6122abdc286c08951de194fe",
+    "output_sha256": "ca113b36897c390ca81ba5d439e6dde7fd1a5ca0f9f4e7cbdb24a1e1a8057203",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-red-low-actual/frame-0052.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-low-contact-1.png",
-    "title": "Красный: низкий старт — область контакта 1",
+    "title": "Рамир: низкий старт — область контакта 1",
     "points": {
       "shoulder": [
         1731,
@@ -1327,13 +1327,13 @@
       }
     ],
     "source_sha256": "b9354545c28dab585427c294de01326d41c7f4733fa465b6169a4e8cf0aa3ca0",
-    "output_sha256": "9cc8eb066d50e7d9f2b54844ce2a044ac46a8c3b56c4ba06acf5d7b2457499fe",
+    "output_sha256": "4983d9212ff6b488c4cd2cf0a436a8c1ccdc0554a87e28b3b73e86a9286f0a8a",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-red-low-actual/frame-0089.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-low-contact-3.png",
-    "title": "Красный: низкий старт — область контакта 3",
+    "title": "Рамир: низкий старт — область контакта 3",
     "points": {
       "shoulder": [
         1360,
@@ -1393,13 +1393,13 @@
       }
     ],
     "source_sha256": "54ffc3f151641e724aeade4fb39ffbcb21b42e76192955d53dbfda9ac76e71df",
-    "output_sha256": "521e3a4f9ee7c5e7e68999e0466bdf6d7b85d3100cce5b3596ff0ee3e0959bc3",
+    "output_sha256": "9c1dd5dc302bafefd7079d0be3b79e125f1970f57f8c7151a6860a959e4ee15f",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3587-first-contacts/frame-0200.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-contact-5.png",
-    "title": "Красный: Falling — контакт 5 / область опоры",
+    "title": "Рамир: Falling — контакт 5 / область опоры",
     "points": {
       "shoulder": [
         499,
@@ -1489,13 +1489,13 @@
       }
     ],
     "source_sha256": "926d4c84adbb23b8d0c611957b710e333b6421808c376a08933060d12c62b49e",
-    "output_sha256": "65e9be3df3a5968d5cb9de8c981bcd45f02b168283eea513f5137557a2e73c66",
+    "output_sha256": "917d734e3e843c911fb03ec974dc1b11015a32dfa193ca71f00e98e037a38bd2",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-white-exit-actual/frame-0098.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/white-contact-5-final.png",
-    "title": "Друг: 3-point — контакт 5 / область опоры",
+    "title": "Миша: 3-point — контакт 5 / область опоры",
     "points": {
       "shoulder": [
         1080,
@@ -1556,13 +1556,13 @@
       }
     ],
     "source_sha256": "7324b2ad99cb524983147de7ef6050b70536b372f419b4b58cc7bfe2c2b5ef38",
-    "output_sha256": "77945698d6c547710d77f5b46951a00196b2fce6b9e43c06f169d097aef7b92b",
+    "output_sha256": "276dd9d8bf569b747428b67f56a273f29b059a8c9a104222a0f2415b03ffc4f1",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   },
   {
     "source": "media/start-review-2026-10-04/3589-red-low-actual/frame-0107.png",
     "output": "reviews/assets/starts-2026-10-04/annotations/red-low-contact-4.png",
-    "title": "Красный: низкий старт — область контакта 4",
+    "title": "Рамир: низкий старт — область контакта 4",
     "points": {
       "shoulder": [
         1138,
@@ -1622,7 +1622,7 @@
       }
     ],
     "source_sha256": "1512855e8d47bb582818757a4760be2d5e44f008ca47c28f2206890b3ac1c5a4",
-    "output_sha256": "1a261d31d310c5f17b513706fc923555f3c4bf592010098d3f7ba14f5515e495",
+    "output_sha256": "87d7a61f0c89eeb710765b757615771912b5c8e7001969d3c519ec8309d344a3",
     "measurement_basis": "manual source pixels, 2D projection; perspective uncertainty not calibrated"
   }
 ]

@@ -14,7 +14,9 @@ import re
 import shutil
 
 import markdown
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
+
+from annotate_start_frame import render
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -68,6 +70,40 @@ def prepare_assets():
             return '(' + Path(os.path.relpath(target,report.parent)).as_posix() + ')'
         text = re.sub(r'\(([^)]+media/start-review-2026-10-04/[^)]+)\)',substitute,text)
         report.write_text(text)
+    named_metadata={}
+    for asset in (ASSETS/'annotations').glob('*.png'):
+        metadata=MEDIA/'annotations'/asset.with_suffix('.json').name
+        if not metadata.exists(): continue
+        spec=json.loads(metadata.read_text())
+        spec['title']=spec['title'].replace('Красный','Рамир').replace('Друг','Миша')
+        # Keep exact original points; only the participant caption changes.
+        identity={key:spec[key] for key in ('title','points','segments','angles','crop','notes') if key in spec}
+        identity['source_sha256']=hashlib.sha256(Path(spec['source']).read_bytes()).hexdigest()
+        digest=hashlib.sha256(json.dumps(identity,sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:12]
+        output=MEDIA/'annotations'/f'names-{digest}'/asset.name
+        spec['output']=str(output)
+        if not output.exists(): render(spec,ROOT/'media')
+        shutil.copyfile(output,asset)
+        named_metadata[asset.name]=output.with_suffix('.json')
+        records.append({'asset':str(asset.relative_to(ASSETS)),
+                        'source':str(Path(spec['source']).relative_to(ROOT)),
+                        'source_sha256':hashlib.sha256(Path(spec['source']).read_bytes()).hexdigest(),
+                        'sha256':hashlib.sha256(asset.read_bytes()).hexdigest(),
+                        'operation':'same manual source points; participant caption renamed only'})
+    montage=ASSETS/'red-start-comparison.jpg'
+    archived=MEDIA/'publication-caption-originals'/montage.name
+    archived.parent.mkdir(exist_ok=True)
+    if not archived.exists(): shutil.copyfile(montage,archived)
+    with Image.open(archived) as image:
+        canvas=image.convert('RGB');draw=ImageDraw.Draw(canvas)
+        font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',22)
+        for y,label in [(28,'Рамир — Falling / выход без руки'),(528,'Рамир — выбранная низкая попытка')]:
+            draw.rectangle((0,y,1499,y+45),fill='#141923')
+            draw.text((18,y+7),label,font=font,fill='white')
+        canvas.save(montage,quality=95)
+    records.append({'asset':montage.name,'source':str(archived.relative_to(ROOT)),
+                    'source_sha256':hashlib.sha256(archived.read_bytes()).hexdigest(),
+                    'operation':'participant captions renamed in blank panel; JPEG re-encoded'})
     for who,folder,index in [('red','3579-wall-motion-visible',8),('white','3580-wall-motion-visible',13)]:
         source=MEDIA/folder/f'{index:04d}.jpg'
         shutil.copyfile(source,ASSETS/f'{who}-wall-two-feet.jpg')
@@ -87,6 +123,20 @@ def prepare_assets():
         records.append({'asset':name,'source':str(source.relative_to(ROOT)),'crop':crop,
                         'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'operation':'crop only; no reflection or anatomy changes'})
     drawings={
+        'back-axis.svg':'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 650" role="img" aria-label="Наклон туловища и форма позвоночника: разные проверки">
+<rect width="540" height="650" rx="16" fill="#10242e"/>
+<style>text{font:22px sans-serif;fill:#eaf6f5}.axis{stroke:#89d9ff;stroke-width:7;fill:none}.curve{stroke:#ffcf6b;stroke-width:7;fill:none}</style>
+<text x="24" y="35">Условная схема, не ваш позвоночник</text>
+<text x="24" y="80">1. Наклон: линия плечо–таз</text>
+<path class="axis" d="M110 270 L220 110"/><circle cx="110" cy="270" r="7" fill="white"/><circle cx="220" cy="110" r="7" fill="white"/>
+<path d="M110 270 L300 270" stroke="#b7c8d0" stroke-width="2"/>
+<text x="278" y="155">Две точки</text><text x="278" y="190">показывают</text><text x="278" y="225">ориентацию.</text>
+<text x="24" y="330">2. Форма: несколько отделов</text>
+<path class="axis" d="M110 520 L220 360" stroke-dasharray="8 8"/>
+<path class="curve" d="M110 520 C172 509 111 452 172 425 S232 404 220 360"/>
+<text x="278" y="400">Изгибы нельзя</text><text x="278" y="435">измерить одной</text><text x="278" y="470">прямой линией.</text>
+<text x="24" y="575">Жёлтая кривая — объяснение различия.</text>
+<text x="24" y="610">Она не задаёт норму и угол поясницы.</text></svg>''',
         'wall-target.svg':svg('Wall: линия тела и колено вперёд',
             '<line class="ground" x1="32" y1="278" x2="510" y2="278"/><line class="ground" x1="465" y1="70" x2="465" y2="278"/>'
             '<path class="body" d="M160 273 L247 172 L327 80"/><circle cx="344" cy="60" r="18" fill="#ffcf6b"/>'
@@ -133,7 +183,7 @@ def prepare_assets():
     (ASSETS/'provenance.json').write_text(json.dumps({'records':records,'schematics':'original illustrative SVGs; not measured ideal poses'},ensure_ascii=False,indent=2)+'\n')
     measurements=[]
     for image in (ASSETS/'annotations').glob('*.png'):
-        metadata=MEDIA/'annotations'/image.with_suffix('.json').name
+        metadata=named_metadata.get(image.name,MEDIA/'annotations'/image.with_suffix('.json').name)
         if not metadata.exists():continue
         record=json.loads(metadata.read_text())
         record['source']=str(Path(record['source']).relative_to(ROOT))
@@ -146,10 +196,10 @@ def page(title,body,home,filters=False):
     if filters:
         body=re.sub(r'<p><a id="([^"]+)"></a></p>\s*<h2[^>]*>',lambda m:f'<h2 id="{m.group(1)}">',body)
         chunks=re.split(r'(?=<h2\b)',body)
-        body=chunks[0]+''.join('<section class="card" data-person="'+('red' if 'Красный:' in chunk[:150] else 'white' if 'Друг:' in chunk[:150] else 'both')+'">'+chunk+'</section>' for chunk in chunks[1:])
-    controls='<nav aria-label="Участник"><button class="filter" data-filter="all" aria-pressed="true">Все</button><button class="filter" data-filter="red" aria-pressed="false">Я в красном</button><button class="filter" data-filter="white" aria-pressed="false">Друг</button></nav>' if filters else ''
+        body=chunks[0]+''.join('<section class="card" data-person="'+('red' if 'id="red-start"' in chunk[:150] else 'white' if 'id="white-start"' in chunk[:150] else 'both')+'">'+chunk+'</section>' for chunk in chunks[1:])
+    controls='<nav aria-label="Участник"><button class="filter" data-filter="all" aria-pressed="true">Все</button><button class="filter" data-filter="red" aria-pressed="false">Рамир</button><button class="filter" data-filter="white" aria-pressed="false">Миша</button></nav>' if filters else ''
     script='''<script>document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{const who=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.querySelectorAll('[data-person]').forEach(card=>card.hidden=who!=='all'&&card.dataset.person!=='both'&&card.dataset.person!==who)}));</script>''' if filters else ''
-    return f'''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title><style>{STYLE}</style></head><body><header><a href="{home}">Все разборы</a><a href="{home}starts/">Старт: карточки</a><a href="https://github.com/Ramchike/athletics-reviews">GitHub</a>{controls}</header><main>{body}</main><footer>Разбор от 4 октября 2026. Дата занятия и замедление неизвестны. Кадры — наблюдения; схемы — цели пробных действий.</footer>{script}</body></html>'''
+    return f'''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title><style>{STYLE}</style></head><body><header><a href="{home}">Все разборы</a><a href="{home}starts/">Старт: карточки</a><a href="https://github.com/Ramchike/athletics-reviews">GitHub</a>{controls}</header><main>{body}</main><footer>Разбор от 4 октября 2026; объяснения обновлены 5 октября. Дата занятия и замедление неизвестны. Кадры — наблюдения; схемы — объяснения и цели пробных действий.</footer>{script}</body></html>'''
 
 
 def decorate_images(body,base):
@@ -208,9 +258,9 @@ def build(public):
     starts=public/'starts';starts.mkdir(exist_ok=True)
     body=decorate_images(body,starts)
     (starts/'index.html').write_text(page('Старт: ваши кадры и цели движения',body,'../',filters=True))
-    landing='''<h1>Ваши разборы</h1><p>Кадры, понятные цели движения и одна команда на повторение.</p><nav><a href="starts/">Новый разбор старта: как у нас → что пробуем</a><a href="materials/plans/next-start-session.html">Следующая тренировка</a><a href="materials/reviews/2026-10-04-starts.html">Полный разбор по 14 пунктам</a><a href="materials/reviews/athlete-a/2026-10-04-starts.html">Ты, в красном</a><a href="materials/reviews/athlete-b/2026-10-04-starts.html">Друг с белыми волосами</a><a href="materials/docs/athletics-map.html">Карта освоения</a><a href="materials/docs/start-sources.html">Исследования и видеореференсы</a><a href="materials/docs/skill-audit.html">Какие готовые навыки нашли</a></nav><h2>Предыдущий разбор СБУ</h2><nav><a href="red/">Красный — прежние СБУ</a><a href="white/">Друг — прежние СБУ</a></nav><p class="note">Исходные тексты, планы и навыки также доступны в папке materials на GitHub. Публичное размещение разрешено пользователем.</p>'''
+    landing='''<h1>Рамир и Миша: разборы</h1><p>Кадры, понятные цели движения и одна команда на повторение.</p><nav><a href="starts/">Новый разбор старта: как у нас → что пробуем</a><a href="materials/plans/next-start-session.html">Следующая тренировка</a><a href="materials/reviews/2026-10-04-starts.html">Полный разбор по 14 пунктам</a><a href="materials/reviews/athlete-a/2026-10-04-starts.html">Рамир</a><a href="materials/reviews/athlete-b/2026-10-04-starts.html">Миша</a><a href="materials/docs/athletics-map.html">Карта освоения</a><a href="materials/docs/start-sources.html">Исследования и видеореференсы</a><a href="materials/docs/skill-audit.html">Какие готовые навыки нашли</a></nav><h2>Предыдущий разбор СБУ</h2><nav><a href="red/">Рамир — прежние СБУ</a><a href="white/">Миша — прежние СБУ</a></nav><p class="note">Исходные тексты, планы и навыки также доступны в папке materials на GitHub. Публичное размещение разрешено пользователем.</p>'''
     (public/'index.html').write_text(page('Ваши разборы тренировок',landing,'./'))
-    (public/'README.md').write_text('# Разборы тренировок\n\n[Открыть на телефоне](https://ramchike.github.io/athletics-reviews/) · [Текущие карточки старта](https://ramchike.github.io/athletics-reviews/starts/)\n\nВ [materials](materials/README.md) опубликованы отчёты, планы, исследования и навыки. У каждой основной технической команды есть собственный кадр и пример целевого действия. Условные схемы не задают универсального эталона. Чужие видео представлены авторскими ссылками.\n\nПубличное размещение разрешено пользователем 4 октября 2026 года. Полные оригиналы и служебные сетевые manifest в эту публикацию не входят. Прежние страницы [красного](red/) и [друга](white/) сохранены.\n')
+    (public/'README.md').write_text('# Разборы тренировок\n\n[Открыть на телефоне](https://ramchike.github.io/athletics-reviews/) · [Текущие карточки старта](https://ramchike.github.io/athletics-reviews/starts/)\n\nВ [materials](materials/README.md) опубликованы отчёты, планы, исследования и навыки. У каждой основной технической команды есть собственный кадр и пример целевого действия. Условные схемы не задают универсального эталона. Чужие видео представлены авторскими ссылками.\n\nПубличное размещение разрешено пользователем 4 октября 2026 года. Полные оригиналы и служебные сетевые manifest в эту публикацию не входят. Прежние страницы [Рамира](red/) и [Миши](white/) сохранены.\n')
     (public/'.nojekyll').touch()
     print(json.dumps({'html_pages':len(list(materials.rglob('*.html')))+2,'selected_assets':len(list(ASSETS.rglob('*')))},ensure_ascii=False))
 

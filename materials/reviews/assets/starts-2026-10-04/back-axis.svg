@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 650" role="img" aria-label="Наклон туловища и форма позвоночника: разные проверки">
+<rect width="540" height="650" rx="16" fill="#10242e"/>
+<style>text{font:22px sans-serif;fill:#eaf6f5}.axis{stroke:#89d9ff;stroke-width:7;fill:none}.curve{stroke:#ffcf6b;stroke-width:7;fill:none}</style>
+<text x="24" y="35">Условная схема, не ваш позвоночник</text>
+<text x="24" y="80">1. Наклон: линия плечо–таз</text>
+<path class="axis" d="M110 270 L220 110"/><circle cx="110" cy="270" r="7" fill="white"/><circle cx="220" cy="110" r="7" fill="white"/>
+<path d="M110 270 L300 270" stroke="#b7c8d0" stroke-width="2"/>
+<text x="278" y="155">Две точки</text><text x="278" y="190">показывают</text><text x="278" y="225">ориентацию.</text>
+<text x="24" y="330">2. Форма: несколько отделов</text>
+<path class="axis" d="M110 520 L220 360" stroke-dasharray="8 8"/>
+<path class="curve" d="M110 520 C172 509 111 452 172 425 S232 404 220 360"/>
+<text x="278" y="400">Изгибы нельзя</text><text x="278" y="435">измерить одной</text><text x="278" y="470">прямой линией.</text>
+<text x="24" y="575">Жёлтая кривая — объяснение различия.</text>
+<text x="24" y="610">Она не задаёт норму и угол поясницы.</text></svg>
