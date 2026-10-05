@@ -1,0 +1,10 @@
+# Optional experiments only; existing library tools still use standard Python.
+# Validated with Python 3.12, CPU inference. Linux may need libEGL.so.1/libGL.so.1.
+av==19.0.1
+requests==2.34.2
+pillow==12.3.0
+numpy==2.5.3
+mediapipe==0.10.32
+opencv-contrib-python==5.0.0.93
+scipy==1.18.1
+matplotlib==3.11.2

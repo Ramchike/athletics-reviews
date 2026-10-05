@@ -1,0 +1,45 @@
+.DS_Store
+.env
+.env.*
+media/
+*.[mM][pP]4
+*.[mM][oO][vV]
+*.[mM]4[vV]
+*.[mM][kK][vV]
+*.[aA][vV][iI]
+*.[wW][eE][bB][mM]
+*.[mM][pP]3
+*.[mM]4[aA]
+*.[wW][aA][vV]
+*.[jJ][pP][gG]
+*.[jJ][pP][eE][gG]
+*.[pP][nN][gG]
+*.[hH][eE][iI][cC]
+*.[hH][eE][iI][fF]
+
+__pycache__/
+*.pyc
+videos/.lock
+videos/.pending-*
+
+# Selected, reviewed derivatives explicitly requested for private GitHub reading.
+# Original videos and service manifests remain under ignored media/.
+!reviews/assets/
+!reviews/assets/**/
+!reviews/assets/**/*.png
+!reviews/assets/**/*.jpg
+!reviews/assets/**/*.jpeg
+!reviews/assets/**/*.gif
+
+# The publication checkout also preserves selected derivatives at legacy URLs.
+!materials/reviews/assets/
+!materials/reviews/assets/**/
+!materials/reviews/assets/**/*.png
+!materials/reviews/assets/**/*.jpg
+!materials/reviews/assets/**/*.jpeg
+!materials/reviews/assets/**/*.gif
+
+# React publication build and local packages; committed source is website/.
+website/node_modules/
+website/dist/
+website/src/project-data.json
