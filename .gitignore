@@ -39,6 +39,10 @@ videos/.pending-*
 !materials/reviews/assets/**/*.jpeg
 !materials/reviews/assets/**/*.gif
 
+# Only selected owned frame replays for this programme; source videos stay ignored.
+!reviews/assets/program-2026-10-05/*.mp4
+!materials/reviews/assets/program-2026-10-05/*.mp4
+
 # React publication build and local packages; committed source is website/.
 website/node_modules/
 website/dist/

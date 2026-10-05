@@ -62,7 +62,7 @@ async def main():
    assert not await page.evaluate('document.documentElement.scrollWidth>innerWidth')
    if width==390 and options.screenshots:
     await page.locator('[data-skill="scientific-literature-review"]').scroll_into_view_if_needed();await page.screenshot(path=str(options.screenshots/'react-skills.png'))
-   for route in ['','plan','map','research','learning','tasks']:
+   for route in ['','plan','exercises','map','research','learning','tasks']:
     await page.goto(BASE+route+('/' if route else '')+'?athlete=ramir')
     await page.locator('main h1').first.wait_for()
     assert not await page.evaluate('document.documentElement.scrollWidth>innerWidth'),route
@@ -76,7 +76,7 @@ async def main():
      assert await page.locator('.sketch-scan').evaluate("e=>getComputedStyle(e).animationName")=='none'
      await page.emulate_media(reduced_motion='no-preference')
    assert not errors,errors
-   print(f'{width}px: strict athlete filters, URL/reload/back, exercise/search, {len(images)} images, 8 skills, 8 routes OK')
+   print(f'{width}px: strict athlete filters, URL/reload/back, exercise/search, {len(images)} images, 8 skills, 9 routes OK')
    await page.close()
   # A broken image must expose a usable link and a clear error, not spin forever.
   page=await browser.new_page(viewport={'width':390,'height':844})

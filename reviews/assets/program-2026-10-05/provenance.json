@@ -1,0 +1,83 @@
+[
+  {
+    "asset": "ramir-a-skip.mp4",
+    "poster": "ramir-a-skip.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 10,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "779f215f5e34841a00c1fa2bd08ecc141075a832709ccd9d05136bd659ebb07d",
+    "frame_count": 28
+  },
+  {
+    "asset": "misha-a-skip.mp4",
+    "poster": "misha-a-skip.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 10,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "e9e7ddacfcc68566c1c927ed1048dea1dafbea9f2a268655088bb6afcc9321aa",
+    "frame_count": 43
+  },
+  {
+    "asset": "ramir-falling.mp4",
+    "poster": "ramir-falling.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 24,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "05089ac91e85195c50d6932b33de0153f347bb0c3777882a8847647887b6287c",
+    "frame_count": 109
+  },
+  {
+    "asset": "ramir-three-point.mp4",
+    "poster": "ramir-three-point.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 24,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "abb96154e51aa6a07aca54d5d0e472031e6112c10171150fbd59c1cb6c08b253",
+    "frame_count": 133
+  },
+  {
+    "asset": "misha-three-point.mp4",
+    "poster": "misha-three-point.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 24,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "7345d6b440b5f819e3ec426371c69cced5b61cdf296340752d42d0ce7c05892a",
+    "frame_count": 106
+  },
+  {
+    "asset": "ramir-push-up.mp4",
+    "poster": "ramir-push-up.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 24,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "7aba155ab236707a481a0c320f3342cd558726ef94fae57d2d1f237d7af9b259",
+    "frame_count": 115
+  },
+  {
+    "asset": "misha-push-up.mp4",
+    "poster": "misha-push-up.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 24,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "0c56ac82ba5e17eb41d3e15b103e534cef5a9c4be0cf09b92402ad1312639277",
+    "frame_count": 133
+  },
+  {
+    "asset": "ramir-wall.mp4",
+    "poster": "ramir-wall.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 10,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "5beb8b3a97154513d057a5594ddeb6c52aa4a314d51536f7c5fd2ed105f423a6",
+    "frame_count": 24
+  },
+  {
+    "asset": "misha-wall.mp4",
+    "poster": "misha-wall.jpg",
+    "operation": "exact own frames, fixed crop and resize only; no mirroring",
+    "playback_fps": 10,
+    "real_time_scale": "unknown; do not measure physical speed or frequency",
+    "output_sha256": "615e5bf7973f02ae4844386abb72056b8e3976336c1a3a3d4c417b2338bc5cfd",
+    "frame_count": 24
+  }
+]

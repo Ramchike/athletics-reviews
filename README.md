@@ -1,6 +1,6 @@
 # Рамир и Миша: база обучения спринту
 
-[Сайт для телефона](https://ramchike.github.io/athletics-reviews/) · [Разборы](https://ramchike.github.io/athletics-reviews/starts/) · [Навыки](https://ramchike.github.io/athletics-reviews/skills/) · [Карта освоения](https://ramchike.github.io/athletics-reviews/map/) · [Статус исходного запроса](https://ramchike.github.io/athletics-reviews/tasks/)
+[Сайт для телефона](https://ramchike.github.io/athletics-reviews/) · [Программа на два часа](https://ramchike.github.io/athletics-reviews/plan/) · [Упражнения и видео](https://ramchike.github.io/athletics-reviews/exercises/) · [Разборы](https://ramchike.github.io/athletics-reviews/starts/) · [Навыки](https://ramchike.github.io/athletics-reviews/skills/) · [Карта освоения](https://ramchike.github.io/athletics-reviews/map/) · [Статус исходного запроса](https://ramchike.github.io/athletics-reviews/tasks/)
 
 - [.agents/skills/](.agents/skills/): полные файлы восьми навыков, справочники, лицензии и происхождение. [Каталог](skills/README.md).
 - [website/](website/README.md): исходный React-сайт и воспроизводимая сборка.

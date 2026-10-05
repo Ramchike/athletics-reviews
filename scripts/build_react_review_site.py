@@ -17,7 +17,7 @@ from build_mobile_start_review import build as build_archive
 
 ROOT=Path(__file__).resolve().parents[1]
 WEBSITE=ROOT/'website'
-ROUTES=('starts','skills','map','research','learning','tasks','plan')
+ROUTES=('starts','skills','map','research','learning','tasks','plan','exercises')
 SKILL_LABELS={
  'athletics-assistant':'Ассистент проекта',
  'sprint-video-review':'Видео и реальные углы',
@@ -101,7 +101,7 @@ def build(public):
  for directory in ('docs','plans','reviews','athletes','sessions','templates','scripts','tests'):
   for source in (ROOT/directory).rglob('*'):
    if not source.is_file() or '__pycache__' in source.parts:continue
-   if source.suffix not in ('.md','.py','.json','.txt','.yaml','.yml','.svg','.png','.jpg','.jpeg','.gif'):continue
+   if source.suffix not in ('.md','.py','.json','.txt','.yaml','.yml','.svg','.png','.jpg','.jpeg','.gif') and not (source.suffix=='.mp4' and source.is_relative_to(ROOT/'reviews/assets/program-2026-10-05')):continue
    target=public/source.relative_to(ROOT)
    target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
  for filename in ('AGENTS.md','.gitignore','RESEARCH_REQUEST.md','requirements-video-analysis.txt','requirements-review-site.txt'):
@@ -132,7 +132,7 @@ def build(public):
   destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(file,destination)
  (public/'README.md').write_text('''# Рамир и Миша: база обучения спринту
 
-[Сайт для телефона](https://ramchike.github.io/athletics-reviews/) · [Разборы](https://ramchike.github.io/athletics-reviews/starts/) · [Навыки](https://ramchike.github.io/athletics-reviews/skills/) · [Карта освоения](https://ramchike.github.io/athletics-reviews/map/) · [Статус исходного запроса](https://ramchike.github.io/athletics-reviews/tasks/)
+[Сайт для телефона](https://ramchike.github.io/athletics-reviews/) · [Программа на два часа](https://ramchike.github.io/athletics-reviews/plan/) · [Упражнения и видео](https://ramchike.github.io/athletics-reviews/exercises/) · [Разборы](https://ramchike.github.io/athletics-reviews/starts/) · [Навыки](https://ramchike.github.io/athletics-reviews/skills/) · [Карта освоения](https://ramchike.github.io/athletics-reviews/map/) · [Статус исходного запроса](https://ramchike.github.io/athletics-reviews/tasks/)
 
 - [.agents/skills/](.agents/skills/): полные файлы восьми навыков, справочники, лицензии и происхождение. [Каталог](skills/README.md).
 - [website/](website/README.md): исходный React-сайт и воспроизводимая сборка.

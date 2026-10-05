@@ -227,7 +227,7 @@ def build(public):
     for directory in ('docs','plans','reviews','athletes','sessions','templates','.agents/skills','scripts','tests'):
         for source in (ROOT/directory).rglob('*'):
             if not source.is_file() or '__pycache__' in source.parts: continue
-            if source.suffix not in ('.md','.py','.json','.txt','.yaml','.yml','.svg','.png','.jpg','.jpeg','.gif') and source.name not in ('LICENSE',): continue
+            if source.suffix not in ('.md','.py','.json','.txt','.yaml','.yml','.svg','.png','.jpg','.jpeg','.gif') and source.name not in ('LICENSE',) and not (source.suffix=='.mp4' and source.is_relative_to(ROOT/'reviews/assets/program-2026-10-05')): continue
             target=materials/source.relative_to(ROOT)
             target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
     for filename in ('README.md','AGENTS.md','RESEARCH_REQUEST.md','requirements-video-analysis.txt','requirements-review-site.txt'):

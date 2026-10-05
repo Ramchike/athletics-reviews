@@ -19,6 +19,10 @@ function dimensions(file) {
  throw new Error(`Cannot determine dimensions: ${file}`);
 }
 const data=JSON.parse(read('reviews/start-cards.json'));
+data.program=JSON.parse(read('plans/two-hour-session.json'));
+if(data.program.totalMinutes!==120 || data.program.segments[0].start!==0 || data.program.segments.at(-1).end!==120)throw new Error('Invalid 120-minute programme');
+for(let i=1;i<data.program.segments.length;i++)if(data.program.segments[i].start!==data.program.segments[i-1].end)throw new Error('Programme gap/overlap');
+for(const exercise of data.program.exercises)for(const own of Object.values(exercise.own))for(const asset of [own.video,own.poster].filter(Boolean))if(!fs.existsSync(path.join(ROOT,'reviews/assets/program-2026-10-05',asset)))throw new Error(`Missing own programme asset: ${asset}`);
 const rows=table(read('docs/skill-audit.md'),'## Решение для каждого направления');
 data.skills=Object.entries(labels).map(([id,title])=>{
  const directory=path.join(ROOT,'.agents/skills',id);

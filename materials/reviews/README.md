@@ -2,6 +2,8 @@
 
 **[Открыть текущий разбор на GitHub Pages](https://ramchike.github.io/athletics-reviews/starts/)** — без входа, с вашими кадрами, схемами целевого действия и ссылками на демонстрации.
 
+**[Программа на два часа](https://ramchike.github.io/athletics-reviews/plan/)** · **[Каждое упражнение: зачем, как и видео](https://ramchike.github.io/athletics-reviews/exercises/)**.
+
 [Все разделы сайта](https://ramchike.github.io/athletics-reviews/) · [Навыки](https://ramchike.github.io/athletics-reviews/skills/) · [Карта освоения](https://ramchike.github.io/athletics-reviews/map/) · [Статус большого запроса](https://ramchike.github.io/athletics-reviews/tasks/). Выбор Рамира или Миши в разборе показывает только его оценки и реальные кадры; ссылку с выбором можно скопировать.
 
 Каждая карточка: **что нормально → что поправить или проверить → почему → как почувствовать → одна команда → проверка**, со своим кадром и схемой. Схема иллюстрирует действие; она не задаёт идеальных углов или длины шагов. У каждого максимум три команды на занятие, одна во время повторения.
