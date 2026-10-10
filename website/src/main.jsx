@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -7,27 +7,31 @@ import './style.css';
 
 const BASE = import.meta.env.BASE_URL;
 const REPO = 'https://github.com/Ramchike/athletics-reviews/blob/main/';
-const { review, program, docs } = data;
+const { review, programme, clips, docs } = data;
 const PEOPLE = ['ramir', 'misha'];
+const NAME = { ramir: 'Рамир', misha: 'Миша' };
+const EXERCISE = Object.fromEntries(programme.exercises.map(exercise => [exercise.id, exercise]));
 const VERDICT = {
   ok: { icon: '🟢', label: 'Норм' },
   fix: { icon: '🔴', label: 'Исправить' },
   unknown: { icon: '⚪', label: 'Не видно' },
 };
+const STATUS = { done: 'освоено', now: 'сейчас', next: 'следующий', parallel: 'параллельно', later: 'потом' };
 const PAGES = [
+  ['train', 'Тренировка'],
   ['path', 'Путь'],
-  ['review', 'Разбор'],
+  ['drills', 'Упражнения'],
   ['technique', 'Техника'],
-  ['plan', 'Тренировка'],
-  ['about', 'Как работаем'],
+  ['review', 'Разборы'],
 ];
 
-// Hash routing keeps GitHub Pages free of 404s: #/review/ramir, #/technique/<anchor>.
+// Hash routing keeps GitHub Pages free of 404s: #/path, #/technique/<anchor>.
 function parseHash() {
-  const [page = 'path', arg = ''] = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
-  return { page: PAGES.some(([id]) => id === page) ? page : 'path', arg };
+  const [page = 'train', arg = ''] = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
+  return { page: PAGES.some(([id]) => id === page) ? page : 'train', arg };
 }
 
+// Scroll only when the page or anchor changes; filters and opened cards keep the position.
 function useRoute() {
   const [route, setRoute] = useState(parseHash);
   useEffect(() => {
@@ -35,23 +39,34 @@ function useRoute() {
     addEventListener('hashchange', update);
     return () => removeEventListener('hashchange', update);
   }, []);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const target = route.arg && document.getElementById(route.arg);
+    if (target?.tagName === 'DETAILS') target.open = true;
     if (target) target.scrollIntoView();
     else scrollTo(0, 0);
   }, [route.page, route.arg]);
   return route;
 }
 
+function useStored(key, initial) {
+  const [value, setValue] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(key)) ?? initial; } catch { return initial; }
+  });
+  useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]);
+  return [value, setValue];
+}
+
+const selected = who => (PEOPLE.includes(who) ? [who] : PEOPLE);
 const slug = text => String(text).toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, '').trim().replace(/\s+/g, '-');
 const textOf = children => React.Children.toArray(children).map(child => typeof child === 'string' ? child : textOf(child.props?.children)).join('');
+const clock = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
 function docLink(href) {
   const [file, anchor = ''] = href.split('#');
   const name = file.split('/').pop();
-  const pages = { 'technique.md': 'technique', 'roadmap.md': 'path', 'feedback.md': 'about' };
   if (!file) return `#/${parseHash().page}/${anchor}`;
-  if (pages[name]) return `#/${pages[name]}/${anchor}`;
+  if (name === 'technique.md') return `#/technique/${anchor}`;
+  if (name === 'roadmap.md') return '#/path';
   return new URL(href, REPO + 'docs/').href;
 }
 
@@ -82,12 +97,18 @@ function Markdown({ source, page }) {
   );
 }
 
-function Header({ page }) {
+function Header({ page, who, setWho }) {
   return (
     <header className="site-header">
       <div className="brand-row">
-        <a className="brand" href="#/path"><span className="brand-mark">↗</span>Рамир <b>×</b> Миша</a>
-        <span className="brand-note">60 / 100 м</span>
+        <a className="brand" href="#/train"><span className="brand-mark">↗</span>Рамир <b>×</b> Миша</a>
+        <div className="switch" role="group" aria-label="Спортсмен">
+          {[['all', 'Оба'], ...PEOPLE.map(id => [id, NAME[id]])].map(([id, title]) => (
+            <button key={id} type="button" aria-pressed={who === id} onClick={() => setWho(id)}>
+              {id !== 'all' && <i className={`dot ${id}`} />}{title}
+            </button>
+          ))}
+        </div>
       </div>
       <nav className="main-nav">
         {PAGES.map(([id, title]) => (
@@ -98,46 +119,231 @@ function Header({ page }) {
   );
 }
 
-function PersonSwitch({ who, page }) {
-  const options = [['all', 'Оба'], ['ramir', 'Рамир'], ['misha', 'Миша']];
+function YouTube({ video }) {
+  const start = video.start ?? 0;
   return (
-    <div className="switch" role="tablist" aria-label="Спортсмен">
-      {options.map(([id, title]) => (
-        <a key={id} role="tab" href={`#/${page}/${id}`} aria-selected={who === id} className={`switch-option ${id}`}>
-          {id !== 'all' && <i className={`dot ${id}`} />}{title}
-        </a>
+    <a className="yt" href={`https://www.youtube.com/watch?v=${video.id}&t=${start}s`} target="_blank" rel="noreferrer">
+      <img src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`} alt="" loading="lazy" />
+      <span>▶ {video.title}{start ? ` · с ${clock(start)}` : ''}</span>
+    </a>
+  );
+}
+
+function OwnClip({ id, clip }) {
+  return (
+    <figure className="clip">
+      <video src={`${BASE}${clips}${clip}.mp4`} poster={`${BASE}${clips}${clip}.jpg`} controls muted playsInline preload="none" />
+      <figcaption><i className={`dot ${id}`} />{NAME[id]} — как сейчас</figcaption>
+    </figure>
+  );
+}
+
+function Exercise({ id, who }) {
+  const exercise = EXERCISE[id];
+  const own = selected(who).filter(person => exercise.own?.[person]);
+  return (
+    <details className="exercise">
+      <summary>
+        <b>{exercise.en}</b>
+        <span>{exercise.ru}</span>
+      </summary>
+      <dl>
+        <div className="row"><dt>Сколько</dt><dd>{exercise.dose}</dd></div>
+        <div className="row"><dt>Главное</dt><dd>{exercise.key}</dd></div>
+        {exercise.angle && <div className="row"><dt>Углы</dt><dd>{exercise.angle}</dd></div>}
+      </dl>
+      {exercise.how && <ol>{exercise.how.map(step => <li key={step}>{step}</li>)}</ol>}
+      {(exercise.video || own.length > 0) && (
+        <div className="media">
+          {exercise.video && <YouTube video={exercise.video} />}
+          {own.map(person => <OwnClip key={person} id={person} clip={exercise.own[person]} />)}
+        </div>
+      )}
+    </details>
+  );
+}
+
+function currentStage(person) {
+  const index = programme.stages.findIndex(stage => stage.status[person] === 'now');
+  return { index, stage: programme.stages[index] };
+}
+
+function StageBanner({ who }) {
+  return (
+    <div className="banner">
+      {selected(who).map(id => {
+        const { index, stage } = currentStage(id);
+        if (!stage) return null;
+        return (
+          <a key={id} className={`banner-row ${id}`} href={`#/path/${stage.id}`}>
+            <span className="eyebrow"><i className={`dot ${id}`} />{NAME[id]} · этап {index + 1} из {programme.stages.length} · {stage.title}</span>
+            <b>«{stage.cue[id]}»</b>
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
+function TrainPage({ who }) {
+  const [sessionId, setSessionId] = useStored('session', programme.sessions[0].id);
+  const [done, setDone] = useStored('done', {});
+  const session = programme.sessions.find(item => item.id === sessionId) ?? programme.sessions[0];
+  const toggle = key => setDone(state => ({ ...state, [key]: !state[key] }));
+  const count = session.blocks.filter((_, index) => done[`${session.id}:${index}`]).length;
+  return (
+    <>
+      <StageBanner who={who} />
+      <div className="tabs" role="group" aria-label="Тренировка">
+        {programme.sessions.map(item => (
+          <button key={item.id} type="button" aria-pressed={item.id === session.id} onClick={() => setSessionId(item.id)}>{item.title}</button>
+        ))}
+      </div>
+      <p className="muted">{session.note}</p>
+      <div className="session-progress">
+        <div className="meter"><i style={{ width: `${(count / session.blocks.length) * 100}%` }} /></div>
+        <span>{count} / {session.blocks.length}</span>
+        {count > 0 && (
+          <button type="button" className="link" onClick={() => setDone(state => Object.fromEntries(Object.entries(state).filter(([key]) => !key.startsWith(`${session.id}:`))))}>Сбросить</button>
+        )}
+      </div>
+      <ol className="blocks">
+        {session.blocks.map((block, index) => {
+          const key = `${session.id}:${index}`;
+          return (
+            <li key={key} className={`block ${done[key] ? 'done' : ''}`}>
+              <label className="block-head">
+                <input type="checkbox" checked={!!done[key]} onChange={() => toggle(key)} />
+                <span className="time">{block.start}–{block.end}′</span>
+                <b>{block.title}</b>
+              </label>
+              {block.note && <p className="muted">{block.note}</p>}
+              {block.exercises.map(id => <Exercise key={id} id={id} who={who} />)}
+            </li>
+          );
+        })}
+      </ol>
+    </>
+  );
+}
+
+function TimeBar() {
+  const { scale: [slow, fast], now, marks, event } = programme.progress;
+  const at = value => `${((slow - value) / (slow - fast)) * 100}%`;
+  return (
+    <section className="timebar">
+      <span className="eyebrow">{event} · секунды</span>
+      <div className="bar">
+        <i className="fill" style={{ width: at(now.value) }} />
+        {marks.map((mark, index) => (
+          <span key={mark.value} className={`tick ${index % 2 ? 'low' : ''}`} style={{ left: at(mark.value) }}>{mark.label}</span>
+        ))}
+        <span className="now" style={{ left: at(now.value) }}>{now.label}</span>
+      </div>
+      <ul className="marks">
+        <li><b>{now.label}</b> сейчас ({now.when})</li>
+        {marks.map(mark => <li key={mark.value}><b>{mark.label}</b> {mark.note}</li>)}
+      </ul>
+    </section>
+  );
+}
+
+function Steps({ who }) {
+  return (
+    <div className="steps">
+      {selected(who).map(id => (
+        <div key={id} className="steps-row">
+          <span className="who"><i className={`dot ${id}`} />{NAME[id]}</span>
+          <div className="steps-track">
+            {programme.stages.map((stage, index) => (
+              <a key={stage.id} href={`#/path/${stage.id}`} className={`step ${stage.status[id]}`} title={stage.title}>{index + 1}</a>
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );
 }
 
-const selected = who => (PEOPLE.includes(who) ? [who] : PEOPLE);
+function Stage({ stage, index, who }) {
+  const statuses = [...new Set(selected(who).map(id => stage.status[id]))];
+  return (
+    <details className={`stage ${statuses.join(' ')}`} id={stage.id} open={statuses.includes('now')}>
+      <summary>
+        <span className="stage-n">{index + 1}</span>
+        <span>
+          <b>{stage.title}</b>
+          <small>{stage.en} · {statuses.map(status => STATUS[status]).join(' / ')}</small>
+        </span>
+      </summary>
+      <p className="goal">{stage.goal}</p>
+      {selected(who).map(id => <p key={id} className={`cue-line ${id}`}><i className={`dot ${id}`} /><b>{NAME[id]}:</b> «{stage.cue[id]}»</p>)}
+      {stage.angles.length > 0 && (
+        <>
+          <h3>Углы и позиции</h3>
+          <ul>{stage.angles.map(line => <li key={line}>{line}</li>)}</ul>
+        </>
+      )}
+      <h3>Что тренить</h3>
+      {stage.train.map(id => <Exercise key={id} id={id} who={who} />)}
+      <h3>Как проверить</h3>
+      <p>{stage.check}</p>
+      {stage.videos.length > 0 && (
+        <>
+          <h3>Посмотреть</h3>
+          <div className="media">{stage.videos.map(video => <YouTube key={video.id} video={video} />)}</div>
+        </>
+      )}
+    </details>
+  );
+}
 
-function PathPage() {
+function PathPage({ who }) {
   return (
     <>
       <section className="hero">
-        <span className="eyebrow">Маршрут</span>
-        <h1>Как бежать быстрее</h1>
-        <div className="stats">
-          <div className="stat"><small>60 м сейчас</small><b>8,3–8,4</b><small>цель II разряд — 7,4</small></div>
-          <div className="stat"><small>100 м сейчас</small><b>14–14,5</b><small>цель II разряд — 11,8</small></div>
-        </div>
+        <h1>Путь</h1>
+        <TimeBar />
+        <Steps who={who} />
       </section>
-      <section className="focus-grid">
-        {PEOPLE.map(id => {
-          const person = review.people[id];
-          return (
-            <a key={id} className={`focus ${id}`} href={`#/review/${id}`}>
-              <span className="eyebrow"><i className={`dot ${id}`} />{person.name} · главное сейчас</span>
-              <p className="focus-text">{person.focus}</p>
-              <p className="cue">«{person.cue}»</p>
-              <span className="more">Разбор с кадрами →</span>
-            </a>
-          );
-        })}
+      {programme.stages.map((stage, index) => <Stage key={stage.id} stage={stage} index={index} who={who} />)}
+      <p className="muted">Подробно, с историями тех, кто выбежал из 11: <a href={`${REPO}docs/roadmap.md`}>roadmap.md</a></p>
+    </>
+  );
+}
+
+function DrillsPage({ who }) {
+  const [query, setQuery] = useState('');
+  const match = id => `${EXERCISE[id].en} ${EXERCISE[id].ru}`.toLowerCase().includes(query.trim().toLowerCase());
+  const seen = new Set();
+  const groups = [
+    ...programme.stages.map(stage => [stage.title, stage.train]),
+    ['Разминка и СБУ', programme.exercises.map(exercise => exercise.id)],
+  ].map(([title, ids]) => [title, ids.filter(id => !seen.has(id) && seen.add(id))]);
+  return (
+    <>
+      <input className="search" type="search" placeholder="Найти: wall, скип, старт…" value={query} onChange={event => setQuery(event.target.value)} />
+      {groups.map(([title, ids]) => {
+        const shown = ids.filter(match);
+        return shown.length > 0 && (
+          <section key={title} className="group">
+            <span className="eyebrow">{title}</span>
+            {shown.map(id => <Exercise key={id} id={id} who={who} />)}
+          </section>
+        );
+      })}
+    </>
+  );
+}
+
+function TechniquePage() {
+  return (
+    <>
+      <section className="hero">
+        <h1>Техника</h1>
+        <p className="lead">По фазам: как правильно, самые дорогие ошибки, подсказка, упражнение.</p>
       </section>
-      <Markdown source={docs.roadmap} page="path" />
+      <Markdown source={docs.technique} page="technique" />
     </>
   );
 }
@@ -155,11 +361,11 @@ function Photo({ file, caption }) {
 function Verdict({ id, card }) {
   const person = card.people[id];
   const verdict = VERDICT[person.verdict];
-  const rows = [['Что хорошо', person.good], ['Почему важно', person.why], ['Ощущение', person.feel], ['Как проверить', person.check]];
+  const rows = [['Что хорошо', person.good], ['Ощущение', person.feel], ['Как проверить', person.check]];
   return (
     <article className={`verdict ${person.verdict} ${id}`}>
       <header>
-        <span className="who"><i className={`dot ${id}`} />{review.people[id].name}</span>
+        <span className="who"><i className={`dot ${id}`} />{NAME[id]}</span>
         <span className={`badge ${person.verdict}`}>{verdict.icon} {verdict.label}</span>
       </header>
       <h3>{person.headline}</h3>
@@ -182,144 +388,38 @@ function ReviewPage({ who }) {
       <section className="hero">
         <span className="eyebrow">Разбор видео</span>
         <h1>{review.session}</h1>
-        <p className="lead">🟢 норм — оставить · 🔴 исправить — мешает времени · ⚪ не видно — переснять. На тренировку каждому одна главная подсказка.</p>
+        <p className="lead">🟢 норм · 🔴 исправить · ⚪ не видно</p>
       </section>
-      <PersonSwitch who={who} page="review" />
-      <div className="cues">
-        {selected(who).map(id => (
-          <p key={id} className={`cue-line ${id}`}><i className={`dot ${id}`} /><b>{review.people[id].name}:</b> «{review.people[id].cue}»</p>
-        ))}
-      </div>
       {review.cards.map(card => (
-        <section key={card.id} id={card.id} className="card">
-          <span className="eyebrow">{card.phase}</span>
-          <h2>{card.title}</h2>
+        <details key={card.id} id={card.id} className="card">
+          <summary>
+            <b>{card.title}</b>
+            <span className="badges">{selected(who).map(id => <span key={id}>{VERDICT[card.people[id].verdict].icon}</span>)}</span>
+          </summary>
           {selected(who).map(id => <Verdict key={id} id={id} card={card} />)}
-          <details className="target">
-            <summary>Как должно быть</summary>
+          <div className="target">
             <img src={`${BASE}${review.assets}${card.target}`} alt={card.targetCaption} loading="lazy" />
-            <p className="muted">{card.targetCaption}</p>
-            <p>
-              {card.references.map(([title, url]) => <a key={url} href={url} target="_blank" rel="noreferrer">{title} ↗</a>)}
-              <a href={`#/technique/${card.technique}`}>Критерии в учебнике →</a>
-            </p>
-          </details>
-        </section>
+            <p className="muted">Как должно быть: {card.targetCaption}</p>
+          </div>
+        </details>
       ))}
-      <section className="card">
-        <h2>Как снимать в следующий раз</h2>
-        <ul>{review.reshoot.map(line => <li key={line}>{line}</li>)}</ul>
-      </section>
-    </>
-  );
-}
-
-function TechniquePage() {
-  return (
-    <>
-      <section className="hero">
-        <span className="eyebrow">Учебник</span>
-        <h1>Техника спринта</h1>
-        <p className="lead">По фазам: как правильно, самые дорогие ошибки, как увидеть на видео, подсказка, упражнение.</p>
-      </section>
-      <Markdown source={docs.technique} page="technique" />
-    </>
-  );
-}
-
-function OwnClip({ id, own }) {
-  if (!own?.video) return null;
-  return (
-    <figure className="clip">
-      <video src={`${BASE}reviews/assets/program-2026-10-05/${own.video}`} poster={`${BASE}reviews/assets/program-2026-10-05/${own.poster}`} controls muted playsInline preload="none" />
-      <figcaption><i className={`dot ${id}`} />{review.people[id].name}{own.phase ? ` · ${own.phase}` : ''}</figcaption>
-    </figure>
-  );
-}
-
-function Exercise({ exercise, who }) {
-  const dose = typeof exercise.dose === 'string'
-    ? exercise.dose
-    : selected(who).map(id => `${review.people[id].name}: ${exercise.dose[id]}`).join(' · ');
-  return (
-    <details className="exercise" id={exercise.id}>
-      <summary>
-        <b>{exercise.title}</b>
-        <span>{exercise.role}</span>
-      </summary>
-      <dl>
-        <div className="row"><dt>Сколько</dt><dd>{dose}</dd></div>
-        {exercise.rest && <div className="row"><dt>Отдых</dt><dd>{exercise.rest}</dd></div>}
-      </dl>
-      {exercise.how && <ol>{exercise.how.map(step => <li key={step}>{step}</li>)}</ol>}
-      <dl>
-        {[['Зачем', exercise.why], ['Ощущение', exercise.feel], ['Как проверить', exercise.check], ['Когда остановиться', exercise.stop]]
-          .filter(([, text]) => text)
-          .map(([title, text]) => <div key={title} className="row"><dt>{title}</dt><dd>{text}</dd></div>)}
-      </dl>
-      <div className="clips">{selected(who).map(id => <OwnClip key={id} id={id} own={exercise.own?.[id]} />)}</div>
-      {exercise.reference && (
-        <p><a href={exercise.reference.url} target="_blank" rel="noreferrer">Как надо: {exercise.reference.title} ↗</a></p>
-      )}
-    </details>
-  );
-}
-
-function PlanPage({ who }) {
-  const byId = Object.fromEntries(program.exercises.map(exercise => [exercise.id, exercise]));
-  return (
-    <>
-      <section className="hero">
-        <span className="eyebrow">Воскресенье · {program.totalMinutes} минут</span>
-        <h1>Тренировка</h1>
-        <p className="lead">{program.goal}</p>
-      </section>
-      <PersonSwitch who={who} page="plan" />
-      {selected(who).map(id => (
-        <aside key={id} className={`readiness ${id}`}><b>{review.people[id].name}: {program.readiness[id].status}</b><p>{program.readiness[id].note}</p></aside>
-      ))}
-      <ol className="timeline">
-        {program.segments.map(segment => (
-          <li key={segment.id} style={{ '--size': segment.end - segment.start }}>
-            <span className="time">{segment.start}–{segment.end} мин</span>
-            <b>{segment.title}</b>
-            {segment.exercises.map(id => byId[id] && <Exercise key={id} exercise={byId[id]} who={who} />)}
-          </li>
-        ))}
-      </ol>
-    </>
-  );
-}
-
-function AboutPage() {
-  return (
-    <>
-      <section className="hero">
-        <span className="eyebrow">Как работаем</span>
-        <h1>Что исправили в разборах</h1>
-        <p className="lead">
-          Видео лежат на Google Drive. Агент читает нужные кадры без скачивания целого файла, сам ставит точки и даёт вердикт.
-          Инструкции агента — <a href={`${REPO}.agents/skills/sprint-video-review/SKILL.md`}>скиллы в репозитории</a>.
-        </p>
-      </section>
-      <Markdown source={docs.feedback} page="about" />
     </>
   );
 }
 
 function App() {
-  const { page, arg } = useRoute();
-  const who = PEOPLE.includes(arg) ? arg : 'all';
+  const { page } = useRoute();
+  const [who, setWho] = useStored('who', 'all');
   const pages = {
-    path: <PathPage />,
-    review: <ReviewPage who={who} />,
+    train: <TrainPage who={who} />,
+    path: <PathPage who={who} />,
+    drills: <DrillsPage who={who} />,
     technique: <TechniquePage />,
-    plan: <PlanPage who={who} />,
-    about: <AboutPage />,
+    review: <ReviewPage who={who} />,
   };
   return (
     <>
-      <Header page={page} />
+      <Header page={page} who={who} setWho={setWho} />
       <main className="site-main">{pages[page]}</main>
       <footer className="site-footer"><a href="https://github.com/Ramchike/athletics-reviews">Исходники на GitHub</a></footer>
     </>

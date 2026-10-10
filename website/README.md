@@ -1,6 +1,6 @@
 # Сайт
 
-React + Vite. Данные берутся из корня репозитория (`reviews/cards.json`, `plans/two-hour-session.json`, `docs/*.md`) скриптом `scripts/refresh-data.mjs` перед сборкой.
+React + Vite. Данные берутся из корня репозитория (`reviews/cards.json`, `plans/programme.json`, `docs/technique.md`) скриптом `scripts/refresh-data.mjs` перед сборкой.
 
 ```sh
 npm --prefix website ci

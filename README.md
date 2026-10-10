@@ -9,7 +9,7 @@
 | Как бежать быстрее: маршрут и честные ожидания | [docs/roadmap.md](docs/roadmap.md) |
 | Техника по фазам: как правильно, самые дорогие ошибки | [docs/technique.md](docs/technique.md) |
 | Последний разбор видео (вердикты 🟢/🔴/⚪) | [reviews/cards.json](reviews/cards.json), [на сайте](https://ramchike.github.io/athletics-reviews/#/review) |
-| Тренировка на 2 часа | [plans/two-hour-session.json](plans/two-hour-session.json), [plans/next-start-session.md](plans/next-start-session.md) |
+| Этапы, упражнения (EN/RU), тренировки | [plans/programme.json](plans/programme.json), [на сайте](https://ramchike.github.io/athletics-reviews/) |
 | Журнал занятий | [sessions/](sessions/) |
 | Разряды, соревнования, исходный большой отчёт | [docs/report.md](docs/report.md), [docs/competitions.md](docs/competitions.md) |
 | Что раздражало в прошлых разборах | [docs/feedback.md](docs/feedback.md) |
@@ -19,7 +19,7 @@
 
 Открыть эту папку и писать обычными словами. Скиллы подхватываются сами: `.agents/skills/` (Codex), `.claude/skills/` (Claude Code, ссылка на ту же папку).
 
-- **sprint-coach** — «Я Рамир, завтра манеж, спина не болит. Что делаем?», «Запиши тренировку: …».
+- **sprint-coach** — «Я Рамир, завтра манеж. Что делаем?», «Запиши тренировку: …».
 - **sprint-video-review** — «Вот папка с видео: <ссылка на Google Drive>. Разбери старты Миши».
 - **sprint-research** — «Пересерчи, как правильно делать B-skip».
 

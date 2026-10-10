@@ -13,7 +13,7 @@
 - [Полный разбор по 14 пунктам](2026-10-04-starts.md).
 - [Рамир](athlete-a/2026-10-04-starts.md).
 - [Миша](athlete-b/2026-10-04-starts.md).
-- [Следующее пробное занятие](../plans/next-start-session.md).
+- [Следующее пробное занятие](../plans/programme.json).
 - [Карта освоения](../docs/athletics-map.md), [исследования](../docs/start-research.md), [проверенные источники](../docs/start-sources.md), [готовые навыки и причины выбора](../AGENTS.md).
 
 Прежний разбор СБУ: [Рамир](https://ramchike.github.io/athletics-reviews/red/), [Миша](https://ramchike.github.io/athletics-reviews/white/). Он относится к другой папке; отозванное сравнение разных ног не используется в текущих советах.
