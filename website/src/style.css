@@ -93,7 +93,8 @@ button.link { border: 0; background: none; color: var(--teal); font: inherit; fo
 .banner { display: grid; gap: 8px; }
 .banner-row { display: block; background: var(--ink); color: white; text-decoration: none; border-radius: 14px; padding: 12px 14px; }
 .banner-row .eyebrow { color: #c7cbc8; }
-.banner-row b { font-size: 19px; color: #ffd2b8; }
+.banner-row b { font-size: 17px; font-weight: 650; }
+.session-title { margin: 18px 0 2px; }
 
 .session-progress { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); font-weight: 650; }
 .meter { flex: 1; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }

@@ -177,7 +177,7 @@ function StageBanner({ who }) {
         return (
           <a key={id} className={`banner-row ${id}`} href={`#/path/${stage.id}`}>
             <span className="eyebrow"><i className={`dot ${id}`} />{NAME[id]} · этап {index + 1} из {programme.stages.length} · {stage.title}</span>
-            <b>«{stage.cue[id]}»</b>
+            <b>{stage.focus[id]}</b>
           </a>
         );
       })}
@@ -194,11 +194,13 @@ function TrainPage({ who }) {
   return (
     <>
       <StageBanner who={who} />
-      <div className="tabs" role="group" aria-label="Тренировка">
-        {programme.sessions.map(item => (
-          <button key={item.id} type="button" aria-pressed={item.id === session.id} onClick={() => setSessionId(item.id)}>{item.title}</button>
-        ))}
-      </div>
+      {programme.sessions.length > 1 ? (
+        <div className="tabs" role="group" aria-label="Тренировка">
+          {programme.sessions.map(item => (
+            <button key={item.id} type="button" aria-pressed={item.id === session.id} onClick={() => setSessionId(item.id)}>{item.title}</button>
+          ))}
+        </div>
+      ) : <h2 className="session-title">{session.title}</h2>}
       <p className="muted">{session.note}</p>
       <div className="session-progress">
         <div className="meter"><i style={{ width: `${(count / session.blocks.length) * 100}%` }} /></div>
@@ -277,7 +279,7 @@ function Stage({ stage, index, who }) {
         </span>
       </summary>
       <p className="goal">{stage.goal}</p>
-      {selected(who).map(id => <p key={id} className={`cue-line ${id}`}><i className={`dot ${id}`} /><b>{NAME[id]}:</b> «{stage.cue[id]}»</p>)}
+      {selected(who).map(id => <p key={id} className={`cue-line ${id}`}><i className={`dot ${id}`} /><b>{NAME[id]}:</b> {stage.focus[id]}</p>)}
       {stage.angles.length > 0 && (
         <>
           <h3>Углы и позиции</h3>
