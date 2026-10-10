@@ -1,0 +1,5 @@
+av
+pillow
+requests
+numpy
+yt-dlp

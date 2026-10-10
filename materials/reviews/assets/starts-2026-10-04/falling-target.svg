@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 390" role="img" aria-label="Falling: цельный наклон с переходом в движение">
-<rect width="540" height="390" rx="16" fill="#10242e"/>
-<style>text{font:22px sans-serif;fill:#eaf6f5}.body{fill:none;stroke:#ffcf6b;stroke-width:11;stroke-linecap:round}.leg{fill:none;stroke:#89d9ff;stroke-width:9;stroke-linecap:round}.alt{fill:none;stroke:#efad92;stroke-width:9;stroke-linecap:round}.ground{stroke:#91a5ad;stroke-width:3}</style>
-<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6" fill="#8be6c7"/></marker></defs>
-<text x="24" y="34">Условная схема — цель действия</text><line class="ground" x1="20" y1="276" x2="510" y2="276"/><path class="body" d="M105 270 L105 170 L105 76"/><circle cx="105" cy="55" r="17" fill="#ffcf6b"/><path class="body" d="M300 270 L350 172 L393 85"/><circle cx="405" cy="64" r="17" fill="#ffcf6b"/><line x1="180" y1="155" x2="275" y2="155" stroke="#8be6c7" stroke-width="5" marker-end="url(#arrow)"/><text x="24" y="318">Наклон всей линии от опоры.</text><text x="24" y="348">Затем шаг и разгон; колени живые.</text></svg>

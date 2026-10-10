@@ -40,8 +40,24 @@ class RangeReader(io.RawIOBase):
         end = start + self.block_size - 1
         if self.size is not None:
             end = min(end, self.size - 1)
+        for attempt in range(4):
+            try:
+                data = self._fetch(start, end)
+                break
+            except requests.RequestException:
+                if attempt == 3:
+                    raise
+        end = start + len(data) - 1
+        self.bytes_read += len(data)
+        self.requests_made += 1
+        self.cache[index] = data
+        while len(self.cache) > self.max_blocks:
+            self.cache.popitem(last=False)
+        return data
+
+    def _fetch(self, start, end):
         with self.session.get(self.url, headers={"Range": f"bytes={start}-{end}"},
-                              timeout=30, stream=True) as response:
+                              timeout=60, stream=True) as response:
             response.raise_for_status()
             match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+)",
                                  response.headers.get("Content-Range", ""))
@@ -54,12 +70,7 @@ class RangeReader(io.RawIOBase):
             self.size = size
             data = response.raw.read(end - start + 2)
             if len(data) != end - start + 1:
-                raise ValueError("Incomplete or oversized HTTP range")
-        self.bytes_read += len(data)
-        self.requests_made += 1
-        self.cache[index] = data
-        while len(self.cache) > self.max_blocks:
-            self.cache.popitem(last=False)
+                raise requests.RequestException("Incomplete HTTP range")
         return data
 
     def readable(self):
@@ -107,6 +118,10 @@ def sheet(paths, labels, output, columns=4, cell=(320, 210)):
             canvas.paste(tile, (x + (width - tile.width) // 2, y))
         draw.text((x + 6, y + height - 21), label, fill="white")
     canvas.save(output, quality=90)
+
+
+def drive_url(file_id):
+    return f"https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t"
 
 
 def readable_time(seconds):
@@ -193,15 +208,26 @@ def extract(url, output, times=None, count=12, max_side=1280, lossless=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--url", required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--url")
+    source.add_argument("--drive", help="Google Drive file id (file must be shared by link)")
     parser.add_argument("--out", required=True)
     parser.add_argument("--at", nargs="+", type=float)
+    parser.add_argument("--span", nargs=3, type=float, metavar=("FROM", "TO", "STEP"),
+                        help="Dense frames from FROM to TO seconds every STEP seconds")
     parser.add_argument("--count", type=int, default=12)
     parser.add_argument("--lossless",action="store_true",help="Save PNG instead of JPEG")
     args = parser.parse_args()
     if args.count < 1:
         parser.error("count must be positive")
-    result = extract(args.url, args.out, args.at, args.count,lossless=args.lossless)
+    url = args.url or drive_url(args.drive)
+    times = args.at
+    if args.span:
+        first, last, step = args.span
+        if step <= 0 or last <= first:
+            parser.error("span needs FROM < TO and STEP > 0")
+        times = [first + i * step for i in range(int((last - first) / step + 1e-9) + 1)]
+    result = extract(url, args.out, times, args.count, lossless=args.lossless)
     print(json.dumps({k: v for k, v in result.items() if k not in {"frames", "source_url", "stream_metadata"}}))
 
 

@@ -1,38 +1,11 @@
-# Сайт Рамира и Миши
+# Сайт
 
-React + Vite, размещение в существующем GitHub Pages. Основные маршруты имеют собственный index.html: обновление /starts/, /skills/ или /map/ не требует серверного роутера. Выбор участника записан в ?athlete=ramir или ?athlete=misha; «Назад» и копирование ссылки сохраняют ожидаемое состояние.
-
-## Данные и сборка
-
-В athletics-lab источники — reviews/start-cards.json и Markdown-документы проекта. Кадры экспортируются отдельно без изменения оригиналов. Полная публикация из рабочей базы:
-
-```sh
-python scripts/build_react_review_site.py --public-root /path/to/athletics-reviews-checkout
-```
-
-До первого запуска установить зависимости Python из requirements-review-site.txt и выполнить npm --prefix website ci. Версия Node должна удовлетворять Vite 7: 20.19+ или 22.12+.
-
-В опубликованном athletics-reviews все рабочие документы и .agents/skills находятся в корне; materials сохраняет старые ссылки. website/src/project-data.json — снимок опубликованных данных. Для пересборки интерфейса из корня публичного репозитория (без исходных видео):
+React + Vite. Данные берутся из корня репозитория (`reviews/cards.json`, `plans/two-hour-session.json`, `docs/*.md`) скриптом `scripts/refresh-data.mjs` перед сборкой.
 
 ```sh
 npm --prefix website ci
-node website/scripts/refresh-data.mjs
-npm --prefix website run build
-node website/scripts/publish-build.mjs
+npm --prefix website run dev     # локально
+npm --prefix website run build   # в website/dist
 ```
 
-refresh-data проверяет корневые навыки и читает текущие карточки и документы. publish-build копирует только сборку интерфейса, не удаляет кадры, навыки и старые отчёты. Изображения и полные документы остаются в репозитории.
-
-## Проверка
-
-Переключение спортсмена во всех восьми упражнениях; только его реальные кадры и оценки; прямые ссылки, обновление, «Назад»; поиск и сброс; раскрытие пояснений и анимации; каталог двух готовых и шести местных навыков; отсутствие горизонтального переполнения на экранах 360/390 px. Проверка интерфейса не подтверждает спортивный эффект.
-
-Для воспроизводимой проверки нужен отдельный Python-пакет Playwright и установленный Chromium. Проверку можно направить на местный сервер или опубликованный сайт:
-
-```sh
-python scripts/check_react_review.py --base-url https://ramchike.github.io/athletics-reviews/
-```
-
---chromium задаёт путь к уже установленному браузеру; --screenshots — местную папку снимков. Проверка включает обработку незагрузившегося изображения и настройку уменьшения движения.
-
-Полная двухчасовая программа: `/plan/`; четырнадцать карточек с целью, действием и видео: `/exercises/`. Данные — корневой `plans/two-hour-session.json`. Новые проверки: `scripts/check_programme.py --base-url <URL> --chromium <путь>`. Собственные MP4 — повтор кадров с условным темпом, не источник измерений времени. Авторские видео имеют отдельную ссылку при недоступном встраивании.
+Публикация — автоматически GitHub Actions (`.github/workflows/pages.yml`) при push в `main`.

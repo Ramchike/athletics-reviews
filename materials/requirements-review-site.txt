@@ -1,3 +1,0 @@
-# Static review export; browser verification is optional and not a site dependency.
-Markdown==3.11
-Pillow==12.3.0

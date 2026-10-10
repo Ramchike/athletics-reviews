@@ -1,49 +1,30 @@
 .DS_Store
 .env
 .env.*
+__pycache__/
+*.pyc
+
+# Frames and videos stay local; originals live on Google Drive.
 media/
 *.[mM][pP]4
 *.[mM][oO][vV]
 *.[mM]4[vV]
 *.[mM][kK][vV]
-*.[aA][vV][iI]
 *.[wW][eE][bB][mM]
-*.[mM][pP]3
-*.[mM]4[aA]
-*.[wW][aA][vV]
 *.[jJ][pP][gG]
 *.[jJ][pP][eE][gG]
 *.[pP][nN][gG]
 *.[hH][eE][iI][cC]
-*.[hH][eE][iI][fF]
 
-__pycache__/
-*.pyc
-videos/.lock
-videos/.pending-*
-
-# Selected, reviewed derivatives explicitly requested for private GitHub reading.
-# Original videos and service manifests remain under ignored media/.
-!reviews/assets/
-!reviews/assets/**/
+# Selected, reviewed frames and short clips published on the site.
 !reviews/assets/**/*.png
 !reviews/assets/**/*.jpg
 !reviews/assets/**/*.jpeg
 !reviews/assets/**/*.gif
+!reviews/assets/**/*.mp4
 
-# The publication checkout also preserves selected derivatives at legacy URLs.
-!materials/reviews/assets/
-!materials/reviews/assets/**/
-!materials/reviews/assets/**/*.png
-!materials/reviews/assets/**/*.jpg
-!materials/reviews/assets/**/*.jpeg
-!materials/reviews/assets/**/*.gif
-
-# Only selected owned frame replays for this programme; source videos stay ignored.
-!reviews/assets/program-2026-10-05/*.mp4
-!materials/reviews/assets/program-2026-10-05/*.mp4
-
-# React publication build and local packages; committed source is website/.
+# Site build
 website/node_modules/
 website/dist/
+website/public/
 website/src/project-data.json

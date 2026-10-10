@@ -1,14 +1,38 @@
-# Рамир и Миша: база обучения спринту
+# Спринт 60/100 м — Рамир и Миша
 
-[Сайт для телефона](https://ramchike.github.io/athletics-reviews/) · [Программа на два часа](https://ramchike.github.io/athletics-reviews/plan/) · [Упражнения и видео](https://ramchike.github.io/athletics-reviews/exercises/) · [Разборы](https://ramchike.github.io/athletics-reviews/starts/) · [Навыки](https://ramchike.github.io/athletics-reviews/skills/) · [Карта освоения](https://ramchike.github.io/athletics-reviews/map/) · [Статус исходного запроса](https://ramchike.github.io/athletics-reviews/tasks/)
+**Сайт для телефона: https://ramchike.github.io/athletics-reviews/**
 
-- [.agents/skills/](.agents/skills/): полные файлы восьми навыков, справочники, лицензии и происхождение. [Каталог](skills/README.md).
-- [website/](website/README.md): исходный React-сайт и воспроизводимая сборка.
-- [AGENTS.md](AGENTS.md): вход для агента из корня. Рабочие записи в docs/, reviews/, plans/, athletes/, sessions/.
-- [materials/](materials/README.md): сохранённые адреса старой публикации.
+Двое новичков по 19 лет готовятся к 60 и 100 м. Цель — II разряд (ручной: 60 м — 7,4, 100 м — 11,8). Сейчас: 60 м ≈ 8,3–8,4, 100 м ≈ 14–14,5.
 
-Выбор спортсмена меняет его кадры и объяснения во всех упражнениях. Параметр athlete в ссылке сохраняет выбор. Схемы подписаны как условные, отсутствующий кадр не заменён чужим.
+| Что | Где |
+| --- | --- |
+| Как бежать быстрее: маршрут и честные ожидания | [docs/roadmap.md](docs/roadmap.md) |
+| Техника по фазам: как правильно, самые дорогие ошибки | [docs/technique.md](docs/technique.md) |
+| Последний разбор видео (вердикты 🟢/🔴/⚪) | [reviews/cards.json](reviews/cards.json), [на сайте](https://ramchike.github.io/athletics-reviews/#/review) |
+| Тренировка на 2 часа | [plans/two-hour-session.json](plans/two-hour-session.json), [plans/next-start-session.md](plans/next-start-session.md) |
+| Журнал занятий | [sessions/](sessions/) |
+| Разряды, соревнования, исходный большой отчёт | [docs/report.md](docs/report.md), [docs/competitions.md](docs/competitions.md) |
+| Что раздражало в прошлых разборах | [docs/feedback.md](docs/feedback.md) |
+| Исследования и источники | [docs/start-research.md](docs/start-research.md), [docs/start-sources.md](docs/start-sources.md), [docs/sources.md](docs/sources.md) |
 
-Исходный запрос не объявлен полностью закрытым: советская видеовыборка, непроверенные попытки, замеры и перенос в колодки отмечены отдельно. Файлы навыков не являются доказательством эффективности тренировки.
+## Как пользоваться с агентом (Codex / Claude Code)
 
-Публичная публикация разрешена пользователем. Оригиналы и служебные сетевые manifest не публикуются. [Прежние СБУ Рамира](red/) и [Миши](white/) сохранены. Без JavaScript доступны [обычные карточки](materials/reviews/2026-10-04-starts-phone.html).
+Открыть эту папку и писать обычными словами. Скиллы подхватываются сами: `.agents/skills/` (Codex), `.claude/skills/` (Claude Code, ссылка на ту же папку).
+
+- **sprint-coach** — «Я Рамир, завтра манеж, спина не болит. Что делаем?», «Запиши тренировку: …».
+- **sprint-video-review** — «Вот папка с видео: <ссылка на Google Drive>. Разбери старты Миши».
+- **sprint-research** — «Пересерчи, как правильно делать B-skip».
+
+## Видео
+
+Оригиналы лежат на Google Drive (папка открыта по ссылке). Агент их не скачивает. `scripts/drive.py` показывает список файлов, `scripts/stream_frames.py --drive <id>` достаёт нужные кадры по HTTP Range в локальную `media/` (не в git). Выбранные размеченные кадры для сайта — в `reviews/assets/`.
+
+```sh
+uv venv -p 3.12 ~/.cache/athletics-py && uv pip install -p ~/.cache/athletics-py -r requirements.txt
+~/.cache/athletics-py/bin/python scripts/drive.py <ссылка-на-папку>
+~/.cache/athletics-py/bin/python scripts/stream_frames.py --drive <id> --out media/<имя> --count 16
+```
+
+## Сайт
+
+`website/` (React + Vite). Собирается и публикуется GitHub Actions при каждом push в `main`. Локально: `npm --prefix website ci && npm --prefix website run dev`.
