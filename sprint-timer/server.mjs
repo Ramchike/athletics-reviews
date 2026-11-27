@@ -6,6 +6,7 @@ import { randomBytes } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { WebSocket, WebSocketServer } from 'ws';
+import QRCode from 'qrcode';
 import { elapsedMs } from './public/timing.mjs';
 
 const ROOT = new URL('./', import.meta.url);
@@ -71,7 +72,10 @@ export function createTimerServer({ origin, tls } = {}) {
     if (req.url !== '/ws' || (origin && req.headers.origin !== origin) || wss.clients.size >= 200) {
       return socket.destroy();
     }
-    wss.handleUpgrade(req, socket, head, ws => wss.emit('connection', ws));
+    wss.handleUpgrade(req, socket, head, ws => {
+      ws.inviteOrigin = origin ?? req.headers.origin;
+      wss.emit('connection', ws);
+    });
   });
 
   function broadcast(room, message) {
@@ -93,6 +97,14 @@ export function createTimerServer({ origin, tls } = {}) {
     socket.session = { room, role };
     old?.close(4001, 'Session resumed');
     send(socket, { type: 'session', code: room.code, role, token: member.token, run: room.run, result: room.result });
+    const invite = role === 'start' && URL.parse(socket.inviteOrigin ?? '');
+    if (invite && ['https:', 'http:'].includes(invite.protocol)) {
+      const link = new URL('/', invite.origin);
+      link.hash = new URLSearchParams({ finish: room.code });
+      QRCode.toDataURL(link.href, { margin: 4, scale: 6 })
+        .then(src => send(socket, { type: 'invite-qr', code: room.code, src }))
+        .catch(() => {}); // The code and invitation link are still available.
+    }
     status(room);
   }
 

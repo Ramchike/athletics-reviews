@@ -16,6 +16,7 @@ const format = value => (value / 1000).toFixed(2).replace('.', ',');
 const inviteCode = new URLSearchParams(location.hash.slice(1)).get('finish') ?? '';
 
 let session = inviteCode ? null : load(sessionStorage, storageKey, null);
+let inviteQr;
 let history = load(localStorage, historyKey, []);
 let series = load(sessionStorage, seriesKey, null);
 let socket;
@@ -117,6 +118,9 @@ function leave() {
   camera?.stop();
   camera = null;
   photo = result = intent = session = null;
+  inviteQr = null;
+  $('invite-qr').open = false;
+  $('invite-image').removeAttribute('src');
   checkingFinish = false;
   localReady = remoteReady = paired = false;
   samples = [];
@@ -161,6 +165,12 @@ function onMessage(message, receivedAt) {
       if (message.result) displayResult(message.result);
       break;
     }
+    case 'invite-qr':
+      if (session?.role === 'start' && message.code === session.code) {
+        inviteQr = message.src;
+        $('invite-image').src = inviteQr;
+      }
+      break;
     case 'sync': {
       const sample = clockSample(message.t0, message.t1, message.t2, receivedAt);
       if (sample.rtt >= 0 && sample.rtt < 1000) {
@@ -542,6 +552,7 @@ function render() {
       : 'Связь есть · финиш ещё не готов';
   text('room-status', status);
   show('pair-help', start && !paired);
+  show('invite-qr', Boolean(start && !paired && inviteQr));
   $('room-status').classList.toggle('good', Boolean(ready));
   text('diagnostics', clock ? `RTT до сервера · ${Math.round(clock.rtt)} мс` : '');
   show('start-controls', start && !run && !result);

@@ -24,6 +24,9 @@ form,#camera-settings{display:grid;gap:10px}
 .setup-step{display:grid;gap:9px}
 .setup-note,.setup-step p{color:var(--sub);font-size:.88rem;line-height:1.45}
 #pair-help{flex-basis:100%}
+#invite-qr{flex-basis:100%}
+#invite-qr summary{cursor:pointer;color:var(--lime)}
+#invite-image{display:block;margin:10px 0;border-radius:8px}
 button,input,select{font:inherit;border-radius:10px;border:1px solid var(--line);min-height:46px;padding:9px 12px;color:var(--ink);background:var(--bg)}
 button{font-weight:720;cursor:pointer}
 button:disabled{opacity:.45;cursor:default}
