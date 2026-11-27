@@ -53,7 +53,9 @@ test('two clients pair, arm, reconnect and get the same result with late deliver
   await start.get('status', value => !value.paired && !value.ready);
   const resumed = await client(t, url);
   resumed.send({ type: 'resume', code, role: 'finish', token: session.token });
-  assert.equal((await resumed.get('session')).run.id, run.id);
+  const restored = (await resumed.get('session')).run;
+  assert.equal(restored.id, run.id);
+  assert.equal(restored.armed, true);
 
   // Test events use a near-future finish, independent of audio/camera hardware.
   // Delay actual packet delivery beyond that event time.

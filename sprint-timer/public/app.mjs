@@ -167,6 +167,8 @@ function onMessage(message, receivedAt) {
       }, 130);
       if (role === 'finish') send({ type: 'ready', ready: localReady });
       if (run && message.run?.id !== run.id) resetRun();
+      if (run && message.run?.armed) armRun(run.id);
+      else if (role === 'finish' && run?.cameraArmed) send({ type: 'armed', id: run.id });
       if (run?.go === null && message.run?.startEvent) acceptStart(message.run.startEvent.t);
       if (pending && message.run?.id === pending.id) send(pending);
       if (message.result) displayResult(message.result);
@@ -208,7 +210,10 @@ function onMessage(message, receivedAt) {
       if (session.role === 'finish') {
         const id = run.id;
         $('camera').play().then(() => {
-          if (run?.id === id) send({ type: 'armed', id });
+          if (run?.id === id) {
+            run.cameraArmed = true;
+            send({ type: 'armed', id });
+          }
         }).catch(() => {
           if (run?.id === id) {
             send({ type: 'cancel', id });
@@ -220,11 +225,7 @@ function onMessage(message, receivedAt) {
       break;
     }
     case 'armed':
-      if (run?.id === message.id && !run.armed) {
-        run.armed = true;
-        if (session.role === 'start' && run.mode === 'sound') microphone?.arm(run);
-        if (session.role === 'start' && run.go !== null) playStart();
-      }
+      armRun(message.id);
       break;
     case 'started':
       if (run?.id === message.id && run.go === null) acceptStart(message.t);
@@ -250,6 +251,13 @@ function onMessage(message, receivedAt) {
       break;
   }
   render();
+}
+
+function armRun(id) {
+  if (run?.id !== id || run.armed) return;
+  run.armed = true;
+  if (session.role === 'start' && run.mode === 'sound') microphone?.arm(run);
+  if (session.role === 'start' && run.go !== null) playStart();
 }
 
 function tick() {
@@ -485,7 +493,7 @@ async function startCamera() {
     const { watchFinish } = await import('./finish.mjs');
     const watcher = await watchFinish($('camera'), {
       config: () => ({
-        runId: checkingFinish ? 'check-finish' : run?.armed && !pending ? run.id : null,
+        runId: checkingFinish ? 'check-finish' : (run?.armed || run?.cameraArmed) && !pending ? run.id : null,
         go: checkingFinish ? -Infinity : run
           ? (run.go ?? (run.mode === 'touch' ? -Infinity : run.cue)) - run.clock.offset : Infinity,
         direction: Number($('direction').value),
