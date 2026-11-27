@@ -2,6 +2,24 @@ export function clockSample(t0, t1, t2, t3) {
   return { offset: ((t1 - t0) + (t2 - t3)) / 2, rtt: (t3 - t0) - (t2 - t1) };
 }
 
+export function estimateClock(samples, now) {
+  if (samples.length < 4) return null;
+  let lower = -Infinity;
+  let upper = Infinity;
+  let best;
+  for (const sample of samples) {
+    // Allow for timer rounding and a small amount of drift since the probe.
+    const radius = sample.rtt / 2 + 2 + Math.max(0, now - sample.at) * 0.0002;
+    lower = Math.max(lower, sample.offset - radius);
+    upper = Math.min(upper, sample.offset + radius);
+    if (!best || sample.rtt < best.rtt) best = { ...sample, uncertainty: radius };
+  }
+  if (lower > upper) {
+    return { ...best, uncertainty: Math.max(best.uncertainty, best.offset - upper, lower - best.offset) };
+  }
+  return { rtt: best.rtt, offset: (lower + upper) / 2, uncertainty: (upper - lower) / 2 };
+}
+
 export function crossing(before, after, line, direction) {
   if (!before || after.t <= before.t || after.t - before.t > 85
     || (before.x - line) * direction >= 0 || (after.x - line) * direction < 0) return null;

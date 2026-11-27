@@ -1,4 +1,4 @@
-import { clockSample } from './timing.mjs';
+import { clockSample, estimateClock } from './timing.mjs';
 
 const $ = id => document.getElementById(id);
 const show = (id, visible) => { $(id).hidden = !visible; };
@@ -53,10 +53,10 @@ function syncNow() {
 
 function sync() {
   const current = performance.now();
-  const recent = samples.filter(sample => current - sample.at < 18_000);
-  if (recent.length < 4) return null;
-  return recent.reduce((best, candidate) => best.rtt <= candidate.rtt ? best : candidate);
+  return estimateClock(samples.filter(sample => current - sample.at < 18_000), current);
 }
+
+const stableClock = clock => clock && clock.rtt <= 160 && clock.uncertainty <= 100;
 
 function connect() {
   if (socket && socket.readyState < WebSocket.CLOSING) return;
@@ -175,7 +175,7 @@ function onMessage(message, receivedAt) {
       break;
     case 'prepare': {
       const clock = sync();
-      if (!clock || clock.rtt > 160 || document.hidden
+      if (!stableClock(clock) || document.hidden
         || (session.role === 'finish' && !localReady)
         || ((session.role === 'finish' || message.run.mode === 'flying') && !camera?.metrics().camera)) {
         send({ type: 'cancel', id: message.run.id });
@@ -258,7 +258,7 @@ function tick() {
 function report(fields) {
   if (!run || pending) return;
   pending = { type: 'event', id: run.id, ...fields, t: fields.t + run.clock.offset,
-    syncMs: run.clock.rtt / 2 };
+    syncMs: run.clock.uncertainty, rttMs: run.clock.rtt };
   send(pending);
 }
 
@@ -535,9 +535,9 @@ function render() {
   text('room-role', start ? 'ТЕЛЕФОН СТАРТА' : 'ТЕЛЕФОН ФИНИША');
   text('room-title', start ? 'На старте' : 'На финише');
   text('room-code', session.code);
-  const ready = paired && remoteReady && connected && clock && clock.rtt <= 160;
+  const ready = paired && remoteReady && connected && stableClock(clock);
   const status = !connected ? 'Восстанавливаем связь…' : !paired ? 'Ждём второй телефон'
-    : !clock ? 'Сверяем часы…' : clock.rtt > 160 ? 'Связь слишком нестабильна для старта' : remoteReady ? 'Оба телефона готовы'
+    : !clock ? 'Сверяем часы…' : !stableClock(clock) ? 'Связь слишком нестабильна для старта' : remoteReady ? 'Оба телефона готовы'
       : 'Связь есть · финиш ещё не готов';
   text('room-status', status);
   $('room-status').classList.toggle('good', Boolean(ready));
@@ -570,7 +570,7 @@ function render() {
   show('lead-label', !touch);
   $('start-run').firstChild.textContent = touch || sound || flying ? 'Подготовить старт ' : 'Начать отсчёт ';
   show('touch-pad', Boolean(start && run?.armed && run.mode === 'touch' && run.go === null));
-  $('ready').disabled = !camera?.metrics().camera || !connected || !clock || clock.rtt > 160 || Boolean(run);
+  $('ready').disabled = !camera?.metrics().camera || !connected || !stableClock(clock) || Boolean(run);
   $('check-finish').disabled = !camera?.metrics().camera || Boolean(run);
   text('check-finish', checkingFinish ? 'Отменить проверку' : 'Проверить проход');
   $('ready').firstChild.textContent = localReady ? 'Перенастроить финиш ' : 'Финиш готов ';

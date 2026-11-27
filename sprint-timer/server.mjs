@@ -123,7 +123,7 @@ export function createTimerServer({ origin, tls } = {}) {
     }
     room.result = { type: 'result', id: run.id, distance: run.distance, athlete: run.athlete,
       mode: run.mode, series: run.series, duration, syncMs: run.startEvent.syncMs + run.finishEvent.syncMs,
-      startRttMs: run.startEvent.syncMs * 2, finishRttMs: run.finishEvent.syncMs * 2,
+      startRttMs: run.startEvent.rttMs, finishRttMs: run.finishEvent.rttMs,
       finishAt: run.finishEvent.t, finishToServerMs: run.finishEvent.receivedAt - run.finishEvent.t,
       startFrameMs: run.startEvent.frameMs, startCamera: run.startEvent.camera,
       frameMs: run.finishEvent.frameMs, audio: run.startEvent.audio, camera: run.finishEvent.camera,
@@ -164,6 +164,8 @@ export function createTimerServer({ origin, tls } = {}) {
     }
     if (!run.armed || message.type !== 'event' || !Number.isFinite(message.t)
       || !Number.isFinite(message.syncMs) || message.syncMs < 0 || message.syncMs > 500) return;
+    const rttMs = message.rttMs ?? message.syncMs * 2;
+    if (!Number.isFinite(rttMs) || rttMs < 0 || rttMs > 1000) return;
     const manualStart = run.go === null;
     const earliestStart = run.mode === 'touch' ? run.armedAt : run.cue;
     const validFrame = ['capture', 'presentation'].includes(message.camera)
@@ -172,7 +174,7 @@ export function createTimerServer({ origin, tls } = {}) {
       ? (run.mode === 'flying' ? validFrame : message.audio === run.mode) && message.t >= earliestStart - message.syncMs
         && message.t <= Math.min(now() + message.syncMs + (run.mode === 'sound' ? 15 : 0), run.cue + 60_000)
       : Math.abs(message.t - run.go) < 900 && ['output', 'estimated'].includes(message.audio))) {
-      run.startEvent = { t: message.t, syncMs: message.syncMs, audio: message.audio };
+      run.startEvent = { t: message.t, syncMs: message.syncMs, rttMs, audio: message.audio };
       if (run.mode === 'flying') Object.assign(run.startEvent, { camera: message.camera, frameMs: message.frameMs });
       if (manualStart) {
         if (run.finishEvent?.t < message.t) run.finishEvent = null;
@@ -183,7 +185,7 @@ export function createTimerServer({ origin, tls } = {}) {
     if (role === 'finish' && !run.finishEvent && message.t >= earliestFinish
       && (run.go === null || message.t < run.go + 60_000)
       && message.t <= now() + 1000 && validFrame) {
-      run.finishEvent = { t: message.t, receivedAt: now(), syncMs: message.syncMs,
+      run.finishEvent = { t: message.t, receivedAt: now(), syncMs: message.syncMs, rttMs,
         camera: message.camera, frameMs: message.frameMs };
     }
     finishRun(room);

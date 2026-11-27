@@ -56,7 +56,7 @@ test('two clients pair, arm, reconnect and get the same result with late deliver
   // Test events use a near-future finish, independent of audio/camera hardware.
   // Delay actual packet delivery beyond that event time.
   const finishOffset = 120;
-  const startEvent = { type: 'event', id: run.id, t: run.go, syncMs: 2, audio: 'output' };
+  const startEvent = { type: 'event', id: run.id, t: run.go, syncMs: 2, rttMs: 15, audio: 'output' };
   start.send(startEvent);
   await delay(Math.max(0, run.go - performance.now() + finishOffset) + 275);
   resumed.send({ type: 'event', id: run.id, t: run.go + finishOffset, syncMs: 4, frameMs: 16.7, camera: 'capture' });
@@ -64,7 +64,7 @@ test('two clients pair, arm, reconnect and get the same result with late deliver
   assert.equal(first.duration, finishOffset);
   assert.deepEqual(first.series, series);
   assert.equal(first.syncMs, 6);
-  assert.equal(first.startRttMs, 4);
+  assert.equal(first.startRttMs, 15);
   assert.equal(first.finishRttMs, 8);
   assert.equal(first.finishAt, run.go + finishOffset);
   assert.ok(first.finishToServerMs >= 250);
