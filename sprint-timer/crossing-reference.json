@@ -1,0 +1,10 @@
+{
+  "ramir-falling.mp4": [
+    {"line": 0.65, "direction": -1, "reference_frames": [52, 55]},
+    {"line": 0.5, "direction": -1, "reference_frames": [68, 72]}
+  ],
+  "misha-three-point.mp4": [
+    {"line": 0.65, "direction": -1, "reference_frames": [51, 54]},
+    {"line": 0.5, "direction": -1, "reference_frames": [72, 76]}
+  ]
+}

@@ -12,6 +12,8 @@ import { elapsedMs } from './public/timing.mjs';
 const ROOT = new URL('./', import.meta.url);
 const files = new Map([
   ['/', ['public/index.html', 'text/html; charset=utf-8']],
+  ['/scanner.mjs', ['public/scanner.mjs', 'text/javascript']],
+  ['/vendor/jsQR.js', ['node_modules/jsqr/dist/jsQR.js', 'text/javascript']],
   ['/style.css', ['public/style.css', 'text/css']],
   ['/app.mjs', ['public/app.mjs', 'text/javascript']],
   ['/sound-trigger.mjs', ['public/sound-trigger.mjs', 'text/javascript']],

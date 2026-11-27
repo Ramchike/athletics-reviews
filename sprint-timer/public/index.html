@@ -3,30 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#141612">
+  <meta name="theme-color" content="#191b18">
   <title>Створ — таймер спринта</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <header class="mast"><a href="/" aria-label="Створ, главная">СТВОР<span></span></a><span class="unit">ТАЙМЕР СПРИНТА</span></header>
+  <nav class="tabs" aria-label="Разделы">
+    <button id="timer-tab" aria-pressed="true" type="button">Замер</button>
+    <button id="athletes-tab" aria-pressed="false" type="button">Спортсмены</button>
+  </nav>
   <main>
     <section id="home">
       <div class="hero">
-        <div class="lanes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-        <p class="eyebrow">60 / 100 М</p>
-        <h1>Замерь<br>свой спринт.</h1>
-        <p>Один телефон даёт сигнал.<br>Второй ловит финиш.</p>
+        <h1>Замер спринта</h1>
+        <p>60 и 100 м · два телефона с интернетом</p>
       </div>
       <div class="panel">
-        <p class="setup-note">На обоих телефонах нужен интернет. Подойдёт Wi‑Fi или мобильная сеть, даже если они разные.</p>
-        <div class="setup-step">
-          <h2>Первый телефон · старт</h2>
-          <p>Создай комнату. Здесь появится код для второго телефона.</p>
-          <button id="create" class="primary">Создать старт <span>↗</span></button>
+        <div class="phone-actions">
+          <button id="create" class="primary">Создать старт</button>
+          <button id="scan-qr" type="button">Сканировать QR</button>
         </div>
         <form id="join-form">
-          <h2>Второй телефон · финиш</h2>
-          <label for="join-code">Введи код, который появился на первом телефоне</label>
+          <label for="join-code">Код со стартового телефона</label>
           <div class="inline"><input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="8 символов" aria-describedby="join-error" required><button>Войти на финиш</button></div>
           <p id="join-error" class="notice" role="alert" hidden></p>
         </form>
@@ -43,13 +42,10 @@
       <div id="start-controls" hidden class="panel">
         <div id="pairing" class="pair">
           <div><span class="label">Код для второго телефона</span><strong id="room-code"></strong></div>
-          <button id="share">Копировать ссылку</button>
-          <p id="pair-help" class="setup-note">Открой Створ на втором телефоне, введи этот код и нажми «Войти на финиш».</p>
-          <details id="invite-qr" hidden>
-            <summary>Показать QR-код</summary>
+          <p id="pair-help" class="setup-note">На втором телефоне нажми «Сканировать QR» или введи код.</p>
+          <div id="invite-qr" hidden>
             <img id="invite-image" width="166" height="166" alt="QR-код приглашения для второго телефона">
-            <p class="setup-note">Наведи камеру второго iPhone на код и открой ссылку.</p>
-          </details>
+          </div>
         </div>
         <form id="start-form">
           <fieldset><legend>Дистанция</legend>
@@ -62,8 +58,7 @@
           <select id="mode" name="mode"><option value="countdown">3 · 2 · 1 · Марш</option><option value="random">На старт · Внимание · Марш</option><option value="touch">Отпустить палец</option><option value="sound">Внешний звук</option><option value="flying">С ходу · две камеры</option></select>
           <label for="lead" id="lead-label">Пауза до первого сигнала</label>
           <select id="lead" name="lead"><option value="5">5 секунд</option><option value="10">10 секунд</option><option value="20">20 секунд</option></select>
-          <label for="athlete">Спортсмен</label><input id="athlete" name="athlete" placeholder="Имя (необязательно)" maxlength="40" list="athletes">
-          <datalist id="athletes"></datalist>
+          <label for="athlete">Спортсмен</label><select id="athlete" name="athlete"><option value="">Без имени</option></select>
           <details id="series-settings">
             <summary>Серия попыток</summary>
             <div class="series-fields">
@@ -82,7 +77,7 @@
       </div>
 
       <div id="finish-controls" hidden class="panel">
-        <p id="camera-instructions">Поставь телефон сбоку, на продолжении финишной черты, примерно на высоте груди. Совмести ближний край разметки со светлой вертикалью. Оставь в кадре одну дорожку.</p>
+        <p id="camera-instructions">Поставь телефон сбоку на высоте груди. Совмести вертикаль с ближним краем финишной черты.</p>
         <button id="camera-button" class="primary">Включить камеру <span>↗</span></button>
         <div id="camera-settings" hidden>
           <div class="viewfinder">
@@ -117,7 +112,6 @@
         </div>
         <button id="again" class="primary">Следующая попытка <span>↗</span></button>
       </div>
-      <p id="diagnostics" class="detail"></p>
     </section>
 
     <p id="notice" class="notice" role="status" hidden></p>
@@ -125,7 +119,26 @@
       <div class="title-row"><h2>Попытки</h2><button id="export" class="quiet">CSV ↓</button></div>
       <ol id="attempts"></ol>
     </section>
+    <section id="athlete-page" hidden>
+      <h1>Спортсмены</h1>
+      <form id="athlete-form" class="panel">
+        <label for="athlete-name">Имя</label>
+        <div class="inline"><input id="athlete-name" maxlength="40" autocomplete="off" required><button type="submit">Добавить</button></div>
+        <p id="athlete-feedback" class="detail" role="status" hidden></p>
+      </form>
+      <div class="panel">
+        <label for="athlete-filter">Результаты спортсмена</label>
+        <select id="athlete-filter"></select>
+        <p id="athlete-empty" class="detail"></p>
+        <ol id="athlete-results" class="attempts"></ol>
+      </div>
+    </section>
   </main>
+  <dialog id="scan-dialog" aria-labelledby="scan-title">
+    <div class="title-row"><h2 id="scan-title">Сканировать QR</h2><button id="scan-close" type="button">Закрыть</button></div>
+    <video id="scan-video" autoplay playsinline muted></video>
+    <p id="scan-status" class="detail" role="status">Наведи камеру на QR-код на стартовом телефоне.</p>
+  </dialog>
   <script type="module" src="/app.mjs"></script>
 </body>
 </html>

@@ -2,10 +2,14 @@ import { clockSample, estimateClock } from './timing.mjs';
 
 const $ = id => document.getElementById(id);
 const show = (id, visible) => { $(id).hidden = !visible; };
-const text = (id, value) => { $(id).textContent = value; };
+const text = (id, value) => {
+  const element = $(id);
+  if (element.textContent !== value) element.textContent = value;
+};
 const storageKey = 'stvor-session';
 const historyKey = 'stvor-results';
 const seriesKey = 'stvor-series';
+const athletesKey = 'stvor-athletes';
 const load = (storage, key, fallback) => {
   try { return JSON.parse(storage.getItem(key)) ?? fallback; } catch { return fallback; }
 };
@@ -18,6 +22,9 @@ const inviteCode = new URLSearchParams(location.hash.slice(1)).get('finish') ?? 
 let session = inviteCode ? null : load(sessionStorage, storageKey, null);
 let inviteQr;
 let history = load(localStorage, historyKey, []);
+let athletes = load(localStorage, athletesKey, []);
+let screen = 'timer';
+let scanController;
 let series = load(sessionStorage, seriesKey, null);
 let socket;
 let reconnect;
@@ -185,7 +192,7 @@ function onMessage(message, receivedAt) {
       break;
     case 'prepare': {
       const clock = sync();
-      if (!stableClock(clock) || document.hidden
+      if (!stableClock(clock) || document.hidden || screen !== 'timer'
         || (session.role === 'finish' && !localReady)
         || ((session.role === 'finish' || message.run.mode === 'flying') && !camera?.metrics().camera)) {
         send({ type: 'cancel', id: message.run.id });
@@ -493,11 +500,7 @@ async function startCamera() {
         }
       },
       metrics: metrics => {
-        text('camera-metrics', [
-          metrics.fps && `${metrics.fps} кадр/с обработано`,
-          metrics.camera === 'capture' ? 'метки камеры' : 'метки показа кадра',
-          metrics.point ? 'туловище видно · оранжевая точка' : 'поза не видна',
-        ].filter(Boolean).join(' · '));
+        text('camera-metrics', metrics.point ? 'Туловище видно' : 'Туловище пока не видно');
         render();
       },
       crossed: ({ photos, ...event }) => {
@@ -540,8 +543,14 @@ function render() {
   const finish = session?.role === 'finish';
   const clock = sync();
   const connected = socket?.readyState === WebSocket.OPEN;
-  show('home', !session);
-  show('room', Boolean(session));
+  const timer = screen === 'timer';
+  show('home', timer && !session);
+  show('room', timer && Boolean(session));
+  show('athlete-page', !timer);
+  show('history', timer && history.length > 0);
+  $('timer-tab').setAttribute('aria-pressed', String(timer));
+  $('athletes-tab').setAttribute('aria-pressed', String(!timer));
+  $('athletes-tab').disabled = Boolean(run);
   if (!session) return;
   text('room-role', start ? 'ТЕЛЕФОН СТАРТА' : 'ТЕЛЕФОН ФИНИША');
   text('room-title', start ? 'На старте' : 'На финише');
@@ -554,12 +563,16 @@ function render() {
   show('pair-help', start && !paired);
   show('invite-qr', Boolean(start && !paired && inviteQr));
   $('room-status').classList.toggle('good', Boolean(ready));
-  text('diagnostics', clock ? `RTT до сервера · ${Math.round(clock.rtt)} мс` : '');
   show('start-controls', start && !run && !result);
   const queue = currentSeries();
   const activeQueue = queue && queue.index < queue.athletes.length;
-  $('athlete').readOnly = Boolean(activeQueue);
-  if (activeQueue) $('athlete').value = queue.athletes[queue.index];
+  const select = $('athlete');
+  select.disabled = Boolean(activeQueue);
+  if (activeQueue) {
+    const name = queue.athletes[queue.index];
+    if (![...select.options].some(item => item.value === name)) select.add(new Option(name, name));
+    select.value = name;
+  }
   show('series-clear', Boolean(queue));
   show('series-state', Boolean(queue));
   if (queue) text('series-state', activeQueue
@@ -568,8 +581,8 @@ function render() {
   const flying = $('mode').value === 'flying';
   show('finish-controls', (finish || (start && flying)) && !result);
   text('camera-instructions', start
-    ? 'Поставь телефон сбоку на линии старта. Выставь вертикаль и выбери направление движения.'
-    : 'Поставь телефон сбоку, на продолжении финишной черты, примерно на высоте груди. Совмести ближний край разметки со светлой вертикалью. Оставь в кадре одну дорожку.');
+    ? 'Поставь телефон сбоку на высоте груди. Совмести вертикаль со стартовой чертой.'
+    : 'Поставь телефон сбоку на высоте груди. Совмести вертикаль с ближним краем финишной черты.');
   show('ready', finish);
   show('camera-button', !camera);
   show('camera-settings', Boolean(camera));
@@ -596,7 +609,7 @@ function render() {
   const kind = result.audio === 'sound' ? 'Оценка · микрофон требует калибровки'
     : result.camera === 'presentation' || result.startCamera === 'presentation' || result.audio === 'estimated'
     ? 'Оценка · браузер подставил запасную метку' : 'Тренировочный замер · нужна калибровка телефонов';
-  text('result-quality', `${kind}. Часы ≈ ${Math.ceil(result.syncMs)} мс, интервал кадров ${Math.round(result.frameMs)} мс.`);
+  text('result-quality', kind);
   show('finish-evidence', Boolean(photo));
   if (photo) {
     $('photo-before').src = photo[0];
@@ -604,20 +617,77 @@ function render() {
   }
 }
 
-function renderHistory() {
-  show('history', history.length > 0);
-  const names = [...new Set(history.map(item => item.athlete).filter(Boolean))];
-  $('athletes').replaceChildren(...names.map(name => Object.assign(document.createElement('option'), { value: name })));
-  $('attempts').replaceChildren(...history.slice(0, 8).map(item => {
-    const row = document.createElement('li');
-    const label = document.createElement('span');
-    const time = document.createElement('strong');
-    label.textContent = [item.athlete, `${item.distance} м`, new Date(item.date).toLocaleDateString('ru')].filter(Boolean).join(' · ');
-    time.textContent = `${format(item.duration)} с`;
-    row.append(label, time);
-    return row;
-  }));
+function attemptRow(item, showName) {
+  const row = document.createElement('li');
+  const label = document.createElement('span');
+  const time = document.createElement('strong');
+  label.textContent = [showName && item.athlete, `${item.distance} м`, new Date(item.date).toLocaleDateString('ru')].filter(Boolean).join(' · ');
+  time.textContent = `${format(item.duration)} с`;
+  row.append(label, time);
+  return row;
 }
+
+function knownAthletes() {
+  return [...new Set([...athletes, ...history.map(item => item.athlete).filter(Boolean)])]
+    .sort((a, b) => a.localeCompare(b, 'ru'));
+}
+
+function renderAthleteResults() {
+  const name = $('athlete-filter').value;
+  const entries = name ? history.filter(item => item.athlete === name) : [];
+  $('athlete-results').replaceChildren(...entries.map(item => attemptRow(item, false)));
+  text('athlete-empty', name ? 'Пока нет результатов' : 'Добавь спортсмена');
+  show('athlete-empty', entries.length === 0);
+  $('athlete-filter').disabled = !name;
+}
+
+function renderHistory() {
+  const names = knownAthletes();
+  const startSelect = $('athlete');
+  const selected = startSelect.value;
+  startSelect.replaceChildren(new Option('Без имени', ''), ...names.map(name => new Option(name, name)));
+  startSelect.value = names.includes(selected) ? selected : '';
+  const historySelect = $('athlete-filter');
+  const athlete = historySelect.value;
+  historySelect.replaceChildren(...names.map(name => new Option(name, name)));
+  if (names.includes(athlete)) historySelect.value = athlete;
+  $('attempts').replaceChildren(...history.slice(0, 8).map(item => attemptRow(item, true)));
+  renderAthleteResults();
+}
+
+$('athlete-filter').onchange = renderAthleteResults;
+$('athlete-form').onsubmit = event => {
+  event.preventDefault();
+  const field = $('athlete-name');
+  const name = field.value.trim().slice(0, 40);
+  const existing = knownAthletes().find(item => item.toLocaleLowerCase('ru') === name.toLocaleLowerCase('ru'));
+  if (name && !existing) {
+    athletes = [...athletes, name];
+    save(localStorage, athletesKey, athletes);
+    renderHistory();
+    $('athlete-filter').value = name;
+    $('athlete').value = name;
+    renderAthleteResults();
+    field.value = '';
+    field.blur();
+  }
+  text('athlete-feedback', !name ? 'Введи имя.' : existing ? 'Это имя уже в списке.' : 'Спортсмен добавлен.');
+  show('athlete-feedback', true);
+};
+$('athlete-name').oninput = () => show('athlete-feedback', false);
+
+function switchScreen(next) {
+  if (run) return;
+  screen = next;
+  if (next === 'athletes' && localReady) {
+    localReady = false;
+    send({ type: 'ready', ready: false });
+  }
+  render();
+  if (next === 'timer' && camera) $('camera').play().catch(() => {});
+}
+$('timer-tab').onclick = () => switchScreen('timer');
+$('athletes-tab').onclick = () => switchScreen('athletes');
 
 $('export').onclick = () => {
   const columns = ['date', 'athlete', 'distance', 'duration', 'mode', 'syncMs', 'frameMs', 'audio', 'camera',
@@ -651,12 +721,31 @@ $('join-form').onsubmit = event => {
   requestSession('join', code);
 };
 $('leave').onclick = leave;
-$('share').onclick = async () => {
-  const url = new URL(location.pathname, location.origin);
-  url.hash = new URLSearchParams({ finish: session.code });
-  try { await navigator.clipboard.writeText(url.href); notice('Ссылка на финиш скопирована.'); }
-  catch { notice(`Открой адрес на втором телефоне: ${url.href}`); }
+$('scan-qr').onclick = async () => {
+  const dialog = $('scan-dialog');
+  const controller = new AbortController();
+  scanController = controller;
+  text('scan-status', 'Наведи камеру на QR-код стартового телефона.');
+  dialog.showModal();
+  try {
+    const { scanInvitation } = await import('./scanner.mjs');
+    if (controller.signal.aborted) return;
+    await scanInvitation($('scan-video'), controller.signal, code => {
+      $('join-code').value = code;
+      joinError('');
+      dialog.close();
+      requestSession('join', code);
+    });
+  } catch {
+    if (!controller.signal.aborted) text('scan-status', 'Камера недоступна. Введи код вручную.');
+  }
 };
+$('scan-close').onclick = () => $('scan-dialog').close();
+$('scan-dialog').onclose = () => {
+  scanController?.abort();
+  scanController = null;
+};
+
 $('start-form').onsubmit = startRun;
 $('series-apply').onclick = applySeries;
 $('series-clear').onclick = () => { saveSeries(null); render(); };
