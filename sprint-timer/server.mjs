@@ -17,6 +17,7 @@ const files = new Map([
   ['/style.css', ['public/style.css', 'text/css']],
   ['/app.mjs', ['public/app.mjs', 'text/javascript']],
   ['/capture.mjs', ['public/capture.mjs', 'text/javascript']],
+  ...['start', 'connect', 'finish'].map(name => [`/photos/${name}.webp`, [`public/photos/${name}.webp`, 'image/webp']]),
   ['/sound-trigger.mjs', ['public/sound-trigger.mjs', 'text/javascript']],
   ['/finish.mjs', ['public/finish.mjs', 'text/javascript']],
   ['/timing.mjs', ['public/timing.mjs', 'text/javascript']],

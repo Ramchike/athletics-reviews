@@ -8,26 +8,25 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="mast">
-    <a href="/" aria-label="Створ, главная"><span aria-hidden="true"></span>Створ</a>
+  <header class="mast" id="mast" hidden>
+    <a href="#/" id="brand" aria-label="Створ, главная"><span aria-hidden="true"></span>Створ</a>
     <button id="show-onboarding" type="button" class="icon-button" aria-label="Как пользоваться">?</button>
   </header>
-  <nav class="tabs" aria-label="Разделы">
+  <nav class="tabs" id="primary-nav" aria-label="Разделы" hidden>
     <button id="timer-tab" aria-current="page" type="button"><span class="nav-icon timer-icon" aria-hidden="true"></span>Замер</button>
     <button id="athletes-tab" type="button"><span class="nav-icon athletes-icon" aria-hidden="true"></span>Спортсмены</button>
   </nav>
-  <main>
-    <section id="home">
-      <h1>Замер</h1>
+  <main id="main">
+    <section id="home" hidden>
+      <div class="home-hero"><h1 id="home-title" tabindex="-1">Замер</h1></div>
+      <section class="latest" id="latest" aria-labelledby="latest-title" hidden>
+        <h2 id="latest-title">Последняя попытка</h2>
+        <div id="latest-attempt"></div>
+      </section>
       <div class="home-actions">
-        <button id="create" class="primary">Создать старт <span aria-hidden="true">↗</span></button>
+        <button id="create" class="primary">Создать старт <span aria-hidden="true">→</span></button>
         <button id="scan-qr" type="button" class="secondary">Подключить финиш <span class="qr-icon" aria-hidden="true"></span></button>
       </div>
-      <form id="join-form" class="panel" hidden>
-        <label for="join-code">Код со стартового телефона</label>
-        <div class="inline"><input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="8 символов" enterkeyhint="go" aria-describedby="join-error" required><button>Подключить</button></div>
-        <p id="join-error" class="notice" role="alert" hidden></p>
-      </form>
     </section>
 
     <section id="room" hidden>
@@ -121,54 +120,64 @@
       <ol id="attempts"></ol>
     </section>
     <section id="athlete-page" hidden>
-      <div class="title-row"><h1>Спортсмены</h1><button id="athlete-add" type="button" class="icon-button" aria-label="Добавить спортсмена">+</button></div>
+      <div class="title-row"><h1 id="athletes-title" tabindex="-1">Спортсмены</h1><button id="athlete-add" type="button" class="icon-button" aria-label="Добавить спортсмена">+</button></div>
       <ul id="athlete-list" class="grouped-list"></ul>
       <p id="athlete-list-empty" class="detail">Добавь спортсмена, чтобы сохранять его результаты.</p>
     </section>
-    <section id="athlete-detail" hidden>
+    <section id="athlete-detail" class="page" hidden>
       <button id="athlete-back" type="button" class="back-button">‹ Спортсмены</button>
       <h1 id="athlete-title" tabindex="-1"></h1>
       <div id="result-filters" class="result-filters">
         <label for="result-order">Порядок<select id="result-order"><option value="recent">Последние</option><option value="best">Лучшие</option><option value="worst">Худшие</option></select></label>
         <label for="result-distance">Дистанция<select id="result-distance"><option value="">Все</option><option value="60">60 м</option><option value="100">100 м</option></select></label>
       </div>
-      <p id="athlete-empty" class="detail">Пока нет результатов</p>
+      <p id="athlete-empty" class="detail" role="status">Пока нет результатов</p>
       <ol id="athlete-results" class="attempts grouped-list"></ol>
     </section>
-  </main>
-  <dialog id="onboarding" aria-labelledby="onboarding-title">
-    <div class="onboarding-art" aria-hidden="true"><span></span><span></span><span></span></div>
-    <p id="onboarding-step" class="step" aria-hidden="true"></p>
-    <h2 id="onboarding-title" tabindex="-1"></h2>
-    <p id="onboarding-copy" class="detail"></p>
-    <div class="dialog-actions">
+    <section id="onboarding" class="page" aria-labelledby="onboarding-title" hidden>
+      <div class="title-row"><button id="onboarding-back" type="button" class="back-button">‹ Назад</button><button id="onboarding-skip" class="quiet" type="button">Пропустить</button></div>
+      <img id="onboarding-photo" width="960" height="720" alt="">
+      <p id="onboarding-step" class="step"></p>
+      <h1 id="onboarding-title" tabindex="-1"></h1>
+      <p id="onboarding-copy" class="detail"></p>
       <button id="onboarding-next" class="primary" type="button">Далее</button>
-      <button id="onboarding-skip" class="quiet" type="button">Пропустить</button>
-    </div>
-  </dialog>
-  <dialog id="athlete-dialog" aria-labelledby="athlete-dialog-title">
-    <div class="title-row"><h2 id="athlete-dialog-title">Новый спортсмен</h2><button id="athlete-close" type="button" class="quiet">Отмена</button></div>
-    <form id="athlete-form">
-      <label for="athlete-name">Имя</label>
-      <input id="athlete-name" maxlength="40" autocomplete="off" enterkeyhint="done" aria-describedby="athlete-feedback" required>
-      <p id="athlete-feedback" class="notice" role="alert" hidden></p>
-      <button type="submit" class="primary">Добавить</button>
-    </form>
-  </dialog>
-  <dialog id="scan-dialog" aria-labelledby="scan-title">
-    <div class="title-row"><h2 id="scan-title">Подключить финиш</h2><button id="scan-close" class="quiet" type="button">Закрыть</button></div>
-    <div class="scan-window"><video id="scan-video" autoplay playsinline muted></video></div>
-    <p id="scan-status" class="detail" role="status"></p>
-    <button id="scan-manual" class="secondary" type="button">Ввести код</button>
-  </dialog>
-  <dialog id="result-dialog" aria-labelledby="result-title">
-    <div class="title-row"><h2 id="result-title">Попытка</h2><button id="result-close" class="quiet" type="button">Закрыть</button></div>
-    <p id="attempt-duration"></p>
-    <dl id="attempt-facts"></dl>
-    <h3>Запись попытки</h3>
-    <p id="replay-status" class="detail" role="status"></p>
-    <div id="replays"></div>
-  </dialog>
+    </section>
+    <section id="athlete-new" class="page" aria-labelledby="athlete-new-title" hidden>
+      <button id="athlete-close" type="button" class="back-button">‹ Спортсмены</button>
+      <h1 id="athlete-new-title" tabindex="-1">Новый спортсмен</h1>
+      <form id="athlete-form">
+        <label for="athlete-name">Имя</label>
+        <input id="athlete-name" maxlength="40" autocomplete="off" enterkeyhint="done" aria-describedby="athlete-feedback" required>
+        <p id="athlete-feedback" class="notice" role="alert" hidden></p>
+        <button type="submit" class="primary">Добавить</button>
+      </form>
+    </section>
+    <section id="scan-page" aria-labelledby="scan-title" hidden>
+      <video id="scan-video" autoplay playsinline muted aria-hidden="true"></video>
+      <div class="scan-top"><button id="scan-close" class="back-button" type="button">‹ Замер</button><h1 id="scan-title" tabindex="-1">Сканировать QR</h1></div>
+      <div class="scan-reticle" aria-hidden="true"></div>
+      <div class="scan-bottom"><p id="scan-status" role="status"></p><button id="scan-manual" class="secondary" type="button">Ввести код</button></div>
+    </section>
+    <section id="join-page" class="page" aria-labelledby="join-title" hidden>
+      <button id="join-back" type="button" class="back-button">‹ Назад</button>
+      <h1 id="join-title" tabindex="-1">Подключить по коду</h1>
+      <form id="join-form">
+        <label for="join-code">Код со стартового телефона</label>
+        <input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="8 символов" enterkeyhint="go" aria-describedby="join-error" required>
+        <p id="join-error" class="notice" role="alert" hidden></p>
+        <button class="primary">Подключить</button>
+      </form>
+    </section>
+    <section id="result-page" class="page" aria-labelledby="result-title" hidden>
+      <button id="result-close" class="back-button" type="button">‹ Назад</button>
+      <h1 id="result-title" tabindex="-1">Попытка</h1>
+      <p id="attempt-duration"></p>
+      <h2 id="replay-heading">Запись попытки</h2>
+      <p id="replay-status" class="detail" role="status"></p>
+      <div id="replays"></div>
+      <dl id="attempt-facts"></dl>
+    </section>
+  </main>
   <script type="module" src="/app.mjs"></script>
 </body>
 </html>

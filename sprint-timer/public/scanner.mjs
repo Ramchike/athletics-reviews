@@ -23,9 +23,15 @@ export async function scanInvitation(video, signal, onCode) {
       frame = requestAnimationFrame(scan);
       if (video.readyState < 2 || now - last < 100) return;
       last = now;
-      canvas.width = Math.min(640, video.videoWidth);
-      canvas.height = Math.round(canvas.width * video.videoHeight / video.videoWidth);
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const aspect = video.clientWidth / video.clientHeight;
+      if (!Number.isFinite(aspect) || aspect <= 0) return;
+      const width = Math.min(video.videoWidth, video.videoHeight * aspect);
+      const height = Math.min(video.videoHeight, video.videoWidth / aspect);
+      const scale = Math.min(1, 640 / Math.max(width, height));
+      canvas.width = Math.max(1, Math.round(width * scale));
+      canvas.height = Math.max(1, Math.round(height * scale));
+      context.drawImage(video, (video.videoWidth - width) / 2, (video.videoHeight - height) / 2,
+        width, height, 0, 0, canvas.width, canvas.height);
       const data = context.getImageData(0, 0, canvas.width, canvas.height);
       const qr = self.jsQR(data.data, data.width, data.height, { inversionAttempts: 'dontInvert' });
       if (!qr) return;

@@ -27,7 +27,7 @@ let session = inviteCode ? null : load(sessionStorage, storageKey, null);
 let inviteQr;
 let history = load(localStorage, historyKey, []);
 let athletes = load(localStorage, athletesKey, []);
-let screen = 'timer';
+let route = { page: 'timer' };
 let athleteDetail;
 let scanController;
 let onboardingStep;
@@ -59,6 +59,121 @@ let tones = [];
 let reportTimer;
 let frame;
 let wake;
+
+const routes = {
+  timer: ['', 'home-title'],
+  athletes: ['athletes', 'athletes-title'],
+  athlete: ['athlete', 'athlete-title'],
+  'athlete-new': ['athlete-new', 'athlete-new-title'],
+  scan: ['scan', 'scan-title'],
+  join: ['join', 'join-title'],
+  attempt: ['attempt', 'result-title'],
+  onboarding: ['onboarding', 'onboarding-title'],
+};
+
+function readRoute() {
+  const code = new URLSearchParams(location.hash.slice(1)).get('finish');
+  if (validCode.test(code ?? '')) return { page: 'join', value: code };
+  const [segment, encoded] = location.hash.slice(2).split('/');
+  const page = Object.keys(routes).find(key => routes[key][0] === segment);
+  if (location.hash.startsWith('#/') && page) {
+    try { return { page, value: encoded ? decodeURIComponent(encoded) : undefined }; }
+    catch { /* Invalid URL encoding. */ }
+  }
+  return { page: 'timer' };
+}
+
+function routeUrl({ page, value }) {
+  if (page === 'join' && value) return `#finish=${value}`;
+  return `#/${routes[page][0]}${value ? `/${encodeURIComponent(value)}` : ''}`;
+}
+
+function applyRoute(next, { focus, scroll = 0 } = {}) {
+  if (session && ['scan', 'join'].includes(next.page)) {
+    next = { page: 'timer' };
+    window.history.replaceState(null, '', routeUrl(next));
+    focus = undefined;
+  }
+  if (route.page === 'scan') {
+    scanController?.abort();
+    scanController = null;
+  }
+  if (route.page === 'attempt') closeReplay();
+  if (['scan', 'join'].includes(route.page) && !['scan', 'join'].includes(next.page) && !session && intent) {
+    void socket?.close();
+    socket = intent = null;
+  }
+  if (route.page === 'timer' && next.page !== 'timer' && localReady) {
+    localReady = false;
+    send({ type: 'ready', ready: false });
+  }
+  route = next;
+  if (next.page === 'athlete') {
+    if (athleteDetail !== next.value) {
+      $('result-order').value = 'recent';
+      $('result-distance').value = '';
+    }
+    athleteDetail = next.value;
+    renderAthleteResults();
+    if (!athleteDetail) text('athlete-title', 'Результаты');
+  }
+  if (next.page === 'join' && next.value) $('join-code').value = next.value;
+  if (next.page === 'onboarding') {
+    onboardingStep = Math.min(Math.max(Math.trunc(Number(next.value) || 0), 0), onboarding.length - 1);
+    renderOnboarding();
+  }
+  render();
+  if (next.page === 'scan') void startScanner();
+  if (next.page === 'attempt') void openReplay(next.value);
+  if (next.page === 'timer' && camera) $('camera').play().catch(() => {});
+  const heading = $(next.page === 'timer' && session ? 'room-title' : routes[next.page][1]);
+  const returnTarget = $(focus);
+  window.scrollTo(0, scroll);
+  (returnTarget?.getClientRects().length ? returnTarget : heading).focus({ preventScroll: true });
+  document.title = `${heading.textContent} · Створ`;
+}
+
+function navigate(page, value, { replace = false, focus, returnFocus = document.activeElement.id } = {}) {
+  if ((run || preparing) && page !== 'timer') return;
+  const next = { page, value };
+  const state = window.history.state;
+  if (page === route.page && value === route.value) return;
+  if (!replace) {
+    window.history.replaceState({ ...state, focus: returnFocus, scroll: window.scrollY }, '');
+  }
+  window.history[replace ? 'replaceState' : 'pushState']({ parent: replace ? state?.parent : route }, '', routeUrl(next));
+  applyRoute(next, { focus });
+}
+
+function goBack(page = 'timer', value) {
+  if (window.history.state?.parent) window.history.back();
+  else navigate(page, value, { replace: true });
+}
+
+window.history.scrollRestoration = 'manual';
+window.addEventListener('popstate', event => {
+  if (run || preparing) {
+    window.history.replaceState({}, '', routeUrl(route));
+    return;
+  }
+  applyRoute(readRoute(), event.state ?? {});
+});
+
+let pressedButton;
+function releaseButton() {
+  pressedButton?.classList.remove('is-pressed');
+  pressedButton = null;
+}
+document.addEventListener('pointerdown', event => {
+  if (!event.isPrimary || event.button !== 0) return;
+  releaseButton();
+  pressedButton = event.target.closest('button:enabled');
+  pressedButton?.classList.add('is-pressed');
+});
+for (const type of ['pointerup', 'pointercancel']) {
+  document.addEventListener(type, event => { if (event.isPrimary) releaseButton(); });
+}
+window.addEventListener('blur', releaseButton);
 
 function send(message) {
   if (socket?.readyState !== WebSocket.OPEN) return false;
@@ -100,7 +215,10 @@ function connect() {
       reconnect = setTimeout(connect, 800);
     } else if (intent) {
       intent = null;
-      notice('Сервер недоступен. Проверь интернет и попробуй снова.');
+      const message = 'Сервер недоступен. Проверь интернет и попробуй снова.';
+      if (route.page === 'join') joinError(message);
+      else if (route.page === 'scan') text('scan-status', message);
+      else notice(message);
     }
     render();
   });
@@ -152,7 +270,6 @@ function leave() {
   const previous = socket;
   socket = null;
   previous?.close();
-  if (location.hash) window.history.replaceState(null, '', location.pathname);
   wake?.release().catch(() => {});
   wake = null;
   notice('');
@@ -168,7 +285,6 @@ function onMessage(message, receivedAt) {
       intent = null;
       session = { code, role, token };
       save(sessionStorage, storageKey, session);
-      if (inviteCode && location.hash) window.history.replaceState(null, '', location.pathname);
       notice('');
       clearInterval(syncTimer);
       let warm = 0;
@@ -189,9 +305,11 @@ function onMessage(message, receivedAt) {
       if (pending && message.run?.id === pending.id) send(pending);
       if (message.result) displayResult(message.result);
       if (entering) {
-        show('join-form', false);
-        render();
-        $('room-title').focus({ preventScroll: true });
+        if (['join', 'scan'].includes(route.page)) navigate('timer', undefined, { replace: true });
+        else if (route.page === 'timer') {
+          render();
+          $('room-title').focus({ preventScroll: true });
+        }
       }
       break;
     }
@@ -215,7 +333,7 @@ function onMessage(message, receivedAt) {
       break;
     case 'prepare': {
       const clock = sync();
-      if (!stableClock(clock) || document.hidden || screen !== 'timer'
+      if (!stableClock(clock) || document.hidden || route.page !== 'timer'
         || (session.role === 'finish' && !localReady)
         || ((session.role === 'finish' || message.run.mode === 'flying') && !camera?.metrics().camera)) {
         send({ type: 'cancel', id: message.run.id });
@@ -627,14 +745,26 @@ function render() {
   const finish = session?.role === 'finish';
   const clock = sync();
   const connected = socket?.readyState === WebSocket.OPEN;
-  const timer = screen === 'timer';
+  const { page } = route;
+  const timer = page === 'timer';
+  const root = timer || page === 'athletes';
+  show('mast', root);
+  show('primary-nav', root);
+  $('main').dataset.page = page;
   show('home', timer && !session);
   show('room', timer && Boolean(session));
-  show('athlete-page', !timer && !athleteDetail);
-  show('athlete-detail', !timer && Boolean(athleteDetail));
-  show('history', timer && history.length > 0);
+  show('athlete-page', page === 'athletes');
+  show('athlete-detail', page === 'athlete');
+  show('athlete-new', page === 'athlete-new');
+  show('scan-page', page === 'scan');
+  show('join-page', page === 'join');
+  show('result-page', page === 'attempt');
+  show('onboarding', page === 'onboarding');
+  show('history', timer && history.length > (session ? 0 : 1));
+  const firstAttempt = $('attempts').firstElementChild;
+  if (firstAttempt) firstAttempt.hidden = !session;
   $('timer-tab').setAttribute('aria-current', timer ? 'page' : 'false');
-  $('athletes-tab').setAttribute('aria-current', timer ? 'false' : 'page');
+  $('athletes-tab').setAttribute('aria-current', page === 'athletes' ? 'page' : 'false');
   $('show-onboarding').disabled = Boolean(run);
   $('athletes-tab').disabled = Boolean(run);
   if (!session) return;
@@ -708,30 +838,46 @@ function render() {
   }
 }
 
-function attemptRow(item, showName) {
-  const row = document.createElement('li');
+function attemptButton(item, area) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'attempt-row';
+  button.id = `attempt-${area}-${item.id}`;
   const label = document.createElement('span');
+  const title = document.createElement('b');
+  const date = document.createElement('small');
   const time = document.createElement('strong');
   const arrow = document.createElement('span');
   arrow.className = 'row-arrow';
   arrow.setAttribute('aria-hidden', 'true');
   arrow.textContent = '›';
-  label.textContent = [showName && item.athlete, `${item.distance} м`, new Date(item.date).toLocaleDateString('ru')].filter(Boolean).join(' · ');
+  title.textContent = [`${item.distance} м`, area !== 'athlete' && item.athlete].filter(Boolean).join(' · ');
+  date.textContent = new Date(item.date).toLocaleDateString('ru');
+  label.append(title, date);
   time.textContent = `${format(item.duration)} с`;
   button.append(label, time, arrow);
-  button.onclick = () => openReplay(item);
-  row.append(button);
+  button.onclick = () => navigate('attempt', item.id, { returnFocus: button.id });
+  return button;
+}
+
+function attemptRow(item, area) {
+  const row = document.createElement('li');
+  row.append(attemptButton(item, area));
   return row;
 }
 
-async function openReplay(item) {
-  const dialog = $('result-dialog');
+async function openReplay(id) {
+  const item = history.find(entry => entry.id === id) || (result?.id === id ? result : null);
   const view = { urls: [] };
   replayView = view;
-  text('result-title', item.athlete ? `${item.athlete} / Попытка` : 'Попытка');
+  text('result-title', item?.athlete ? `${item.athlete} / Попытка` : 'Попытка');
+  show('attempt-duration', Boolean(item));
+  show('attempt-facts', Boolean(item));
+  show('replay-heading', Boolean(item));
+  if (!item) {
+    text('replay-status', 'Этой попытки нет на этом телефоне.');
+    return;
+  }
   text('attempt-duration', `${format(item.duration)} с`);
   const startModes = {
     countdown: 'Обратный отсчёт', random: 'Команды с паузой', touch: 'Касание',
@@ -755,14 +901,13 @@ async function openReplay(item) {
   }));
   $('replays').replaceChildren();
   text('replay-status', 'Открываем запись…');
-  dialog.showModal();
   try {
     await replayWrites.get(item.id);
     const clips = await Promise.all(['start', 'finish'].map(role => loadReplay(item.id, role)));
     if (replayView !== view) return;
     for (const clip of clips.filter(Boolean)) {
       const block = document.createElement('section');
-      const title = document.createElement('h4');
+      const title = document.createElement('h3');
       title.textContent = clip.role === 'start' ? 'Старт' : 'Финиш';
       block.append(title);
       if (clip.video) {
@@ -794,32 +939,27 @@ async function openReplay(item) {
   }
 }
 
-$('result-close').onclick = () => $('result-dialog').close();
-$('result-dialog').onclose = () => {
-  if ($('result-dialog').open) return;
+function closeReplay() {
   $('replays').replaceChildren();
   replayView?.urls.forEach(url => URL.revokeObjectURL(url));
   replayView = null;
+}
+
+$('result-close').onclick = () => {
+  const athlete = history.find(item => item.id === route.value)?.athlete;
+  goBack(athlete ? 'athlete' : 'timer', athlete || undefined);
 };
-$('current-result').onclick = () => { if (result) void openReplay(result); };
+$('current-result').onclick = () => {
+  if (result) navigate('attempt', result.id, { returnFocus: 'current-result' });
+};
 
 function knownAthletes() {
   return [...new Set([...athletes, ...history.map(item => item.athlete).filter(Boolean)])]
     .sort((a, b) => a.localeCompare(b, 'ru'));
 }
 
-function showAthlete(name) {
-  athleteDetail = name;
-  $('result-order').value = 'recent';
-  $('result-distance').value = '';
-  renderAthleteResults();
-  render();
-  $('athlete-title').focus();
-}
-
 function renderAthleteResults() {
-  if (!athleteDetail) return;
-  const all = history.filter(item => item.athlete === athleteDetail);
+  const all = athleteDetail ? history.filter(item => item.athlete === athleteDetail) : [];
   const order = $('result-order').value;
   const distance = $('result-distance').value;
   const entries = all.filter(item => !distance || String(item.distance) === distance);
@@ -827,9 +967,9 @@ function renderAthleteResults() {
     entries.sort((a, b) => a.distance - b.distance
       || (order === 'best' ? a.duration - b.duration : b.duration - a.duration));
   }
-  text('athlete-title', `${athleteDetail} / Результаты`);
+  text('athlete-title', athleteDetail ? `${athleteDetail} / Результаты` : 'Результаты');
   const rows = entries.flatMap((item, index) => {
-    const row = attemptRow(item, false);
+    const row = attemptRow(item, 'athlete');
     if (order === 'recent' || distance || item.distance === entries[index - 1]?.distance) return [row];
     const group = document.createElement('li');
     group.className = 'result-group';
@@ -855,37 +995,33 @@ function renderHistory() {
     const row = document.createElement('li');
     const openAthlete = document.createElement('button');
     openAthlete.type = 'button';
-    openAthlete.dataset.name = name;
+    openAthlete.id = `open-athlete-${encodeURIComponent(name)}`;
     openAthlete.className = 'athlete-row';
     const arrow = document.createElement('span');
     arrow.className = 'row-arrow';
     arrow.setAttribute('aria-hidden', 'true');
     arrow.textContent = '›';
     openAthlete.append(name, arrow);
-    openAthlete.onclick = () => showAthlete(name);
+    openAthlete.onclick = () => navigate('athlete', name, { returnFocus: openAthlete.id });
     row.append(openAthlete);
     return row;
   }));
   show('athlete-list', names.length > 0);
   show('athlete-list-empty', names.length === 0);
-  $('attempts').replaceChildren(...history.slice(0, 8).map(item => attemptRow(item, true)));
+  $('attempts').replaceChildren(...history.slice(0, 8).map(item => attemptRow(item, 'history')));
+  $('latest-attempt').replaceChildren(...(history.length ? [attemptButton(history[0], 'latest')] : []));
+  show('latest', history.length > 0);
   renderAthleteResults();
 }
 
-$('athlete-back').onclick = () => {
-  const previous = athleteDetail;
-  athleteDetail = null;
-  render();
-  [...$('athlete-list').querySelectorAll('button')].find(button => button.dataset.name === previous)?.focus();
-};
+$('athlete-back').onclick = () => goBack('athletes');
 $('athlete-add').onclick = () => {
   $('athlete-form').reset();
   show('athlete-feedback', false);
   $('athlete-name').removeAttribute('aria-invalid');
-  $('athlete-dialog').showModal();
-  $('athlete-name').focus({ preventScroll: true });
+  navigate('athlete-new', undefined, { returnFocus: 'athlete-add' });
 };
-$('athlete-close').onclick = () => $('athlete-dialog').close();
+$('athlete-close').onclick = () => goBack('athletes');
 $('athlete-form').onsubmit = event => {
   event.preventDefault();
   const field = $('athlete-name');
@@ -902,27 +1038,16 @@ $('athlete-form').onsubmit = event => {
   save(localStorage, athletesKey, athletes);
   renderHistory();
   $('athlete').value = name;
-  $('athlete-dialog').close();
-  showAthlete(name);
+  navigate('athlete', name, { replace: true });
 };
 $('athlete-name').oninput = () => {
   show('athlete-feedback', false);
   $('athlete-name').removeAttribute('aria-invalid');
 };
 
-function switchScreen(next) {
-  if (run) return;
-  screen = next;
-  athleteDetail = null;
-  if (next === 'athletes' && localReady) {
-    localReady = false;
-    send({ type: 'ready', ready: false });
-  }
-  render();
-  if (next === 'timer' && camera) $('camera').play().catch(() => {});
-}
-$('timer-tab').onclick = () => switchScreen('timer');
-$('athletes-tab').onclick = () => switchScreen('athletes');
+$('brand').onclick = event => { event.preventDefault(); navigate('timer'); };
+$('timer-tab').onclick = () => navigate('timer');
+$('athletes-tab').onclick = () => navigate('athletes');
 
 $('export').onclick = () => {
   const columns = ['date', 'athlete', 'distance', 'duration', 'mode', 'syncMs', 'frameMs', 'audio', 'camera',
@@ -961,8 +1086,8 @@ function joinError(message) {
 }
 
 function openCodeEntry() {
-  show('join-form', true);
-  $('join-code').focus();
+  if (route.page === 'join') $('join-code').focus();
+  else navigate('join', undefined, { focus: 'join-code', returnFocus: 'scan-manual' });
 }
 
 $('join-code').oninput = () => joinError('');
@@ -974,34 +1099,27 @@ $('join-form').onsubmit = event => {
   requestSession('join', code);
 };
 $('leave').onclick = leave;
-$('scan-qr').onclick = async () => {
-  const dialog = $('scan-dialog');
+$('scan-qr').onclick = () => navigate('scan', undefined, { returnFocus: 'scan-qr' });
+async function startScanner() {
   const controller = new AbortController();
   scanController = controller;
   text('scan-status', 'Наведи камеру на QR-код стартового телефона.');
-  dialog.showModal();
   try {
     const { scanInvitation } = await import('./scanner.mjs');
     if (controller.signal.aborted) return;
     await scanInvitation($('scan-video'), controller.signal, code => {
       $('join-code').value = code;
       joinError('');
-      dialog.close();
+      text('scan-status', 'Подключаем финиш…');
       requestSession('join', code);
     });
   } catch {
     if (!controller.signal.aborted) text('scan-status', 'Камера недоступна. Введи код вручную.');
   }
-};
-$('scan-close').onclick = () => $('scan-dialog').close();
-$('scan-manual').onclick = () => {
-  $('scan-dialog').close();
-  openCodeEntry();
-};
-$('scan-dialog').onclose = () => {
-  scanController?.abort();
-  scanController = null;
-};
+}
+$('scan-close').onclick = () => goBack();
+$('scan-manual').onclick = openCodeEntry;
+$('join-back').onclick = () => goBack();
 
 $('start-form').onsubmit = startRun;
 $('series-apply').onclick = applySeries;
@@ -1081,52 +1199,40 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 const onboarding = [
-  ['Создай старт', 'На первом телефоне нажми «Создать старт». На экране появится QR-код.'],
-  ['Подключи финиш', 'На втором телефоне открой «Створ», нажми «Подключить финиш» и отсканируй QR. Оба телефона должны быть в интернете.'],
-  ['Сделай замер', 'Совмести вертикаль в камере с финишной чертой. Отметь готовность финиша, затем запусти отсчёт на старте.'],
+  ['start', 'Создай старт', 'На первом телефоне нажми «Создать старт». На экране появится QR-код.'],
+  ['connect', 'Подключи финиш', 'На втором телефоне отсканируй QR из «Створа». Телефоны могут быть в разных сетях.'],
+  ['finish', 'Сделай замер', 'Совмести вертикаль в камере с финишной чертой. Отметь готовность финиша, затем запусти отсчёт.'],
 ];
 
 function renderOnboarding() {
-  const [title, copy] = onboarding[onboardingStep];
-  $('onboarding').dataset.step = String(onboardingStep);
+  const [photo, title, copy] = onboarding[onboardingStep];
+  $('onboarding-photo').src = `/photos/${photo}.webp`;
   text('onboarding-step', `${onboardingStep + 1} / ${onboarding.length}`);
   text('onboarding-title', title);
   text('onboarding-copy', copy);
   text('onboarding-next', onboardingStep === onboarding.length - 1 ? 'К замеру' : 'Далее');
-  show('onboarding-skip', onboardingStep < onboarding.length - 1);
 }
 
-function openOnboarding() {
-  onboardingStep = 0;
-  renderOnboarding();
-  $('onboarding').showModal();
-  $('onboarding-title').focus({ preventScroll: true });
-}
-
-$('show-onboarding').onclick = openOnboarding;
+$('show-onboarding').onclick = () => navigate('onboarding', '0');
 function dismissOnboarding() {
   save(localStorage, onboardingKey, true);
-  $('onboarding').close();
+  goBack();
 }
-$('onboarding').oncancel = event => {
-  event.preventDefault();
-  dismissOnboarding();
+$('onboarding-back').onclick = () => {
+  if (onboardingStep > 0) navigate('onboarding', String(onboardingStep - 1), { replace: true });
+  else dismissOnboarding();
 };
 $('onboarding-skip').onclick = dismissOnboarding;
 $('onboarding-next').onclick = () => {
-  if (++onboardingStep === onboarding.length) {
-    dismissOnboarding();
-    return;
-  }
-  renderOnboarding();
-  $('onboarding-title').focus({ preventScroll: true });
+  if (onboardingStep + 1 === onboarding.length) dismissOnboarding();
+  else navigate('onboarding', String(onboardingStep + 1), { replace: true });
 };
 
-if (inviteCode) {
-  $('join-code').value = inviteCode;
-  show('join-form', true);
-}
 if (session) connect();
 renderHistory();
-render();
-if (!inviteCode && !session && !load(localStorage, onboardingKey, false)) openOnboarding();
+const firstRoute = readRoute();
+if (!location.hash && !session && !load(localStorage, onboardingKey, false)) {
+  navigate('onboarding', '0', { replace: true });
+} else {
+  applyRoute(firstRoute);
+}
