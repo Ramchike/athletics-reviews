@@ -36,6 +36,8 @@ test('two clients pair, arm, reconnect and get the same result with late deliver
   assert.equal(await (await fetch(url.replace('ws:', 'http:').replace('/ws', '/healthz'))).text(), 'ok');
   start.send({ type: 'create' });
   const { code } = await start.get('session');
+  finish.send({ type: 'join', code: 'неверный' });
+  assert.match((await finish.get('error')).text, /Сверь код/);
   finish.send({ type: 'join', code });
   const session = await finish.get('session');
   start.send({ type: 'prepare', distance: 60, mode: 'countdown' });

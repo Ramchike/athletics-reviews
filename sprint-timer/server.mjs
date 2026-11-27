@@ -105,12 +105,21 @@ export function createTimerServer({ origin, tls } = {}) {
       return bind(room, 'start', socket, id());
     }
     const room = rooms.get(message.code);
-    if (message.type === 'join' && room && !room.finish) return bind(room, 'finish', socket, id());
+    if (message.type === 'join') {
+      if (room && !room.finish) return bind(room, 'finish', socket, id());
+      if (room?.finish && !room.run && !open(room.finish.socket)) {
+        room.finish = null;
+        return bind(room, 'finish', socket, id());
+      }
+      return send(socket, { type: 'error', code: 'join', text: room
+        ? 'Финиш уже подключён. Вернись на подключённый телефон или закрой ту вкладку и повтори после окончания попытки.'
+        : 'Такой комнаты нет. Сверь код с первым телефоном. Если там тоже главный экран, нажми на нём «Создать старт».' });
+    }
     if (message.type === 'resume' && room && ['start', 'finish'].includes(message.role)
       && typeof message.token === 'string' && room[message.role]?.token === message.token) {
       return bind(room, message.role, socket, message.token);
     }
-    send(socket, { type: 'error', code: 'session', text: 'Комната недоступна. Проверь код или создай новую.' });
+    send(socket, { type: 'error', code: 'session', text: 'Комната закрыта. Создай новую комнату на стартовом телефоне.' });
   }
 
   function finishRun(room) {

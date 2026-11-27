@@ -18,10 +18,17 @@
         <p>Один телефон даёт сигнал.<br>Второй ловит финиш.</p>
       </div>
       <div class="panel">
-        <button id="create" class="primary">Создать старт <span>↗</span></button>
+        <p class="setup-note">На обоих телефонах нужен интернет. Подойдёт Wi‑Fi или мобильная сеть, даже если они разные.</p>
+        <div class="setup-step">
+          <h2>Первый телефон · старт</h2>
+          <p>Создай комнату. Здесь появится код для второго телефона.</p>
+          <button id="create" class="primary">Создать старт <span>↗</span></button>
+        </div>
         <form id="join-form">
-          <label for="join-code">Код комнаты на стартовом телефоне</label>
-          <div class="inline"><input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" placeholder="Например, A02BC891" required><button>Войти на финиш</button></div>
+          <h2>Второй телефон · финиш</h2>
+          <label for="join-code">Введи код, который появился на первом телефоне</label>
+          <div class="inline"><input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="8 символов" aria-describedby="join-error" required><button>Войти на финиш</button></div>
+          <p id="join-error" class="notice" role="alert" hidden></p>
         </form>
       </div>
     </section>
@@ -35,8 +42,9 @@
 
       <div id="start-controls" hidden class="panel">
         <div id="pairing" class="pair">
-          <div><span class="label">Код финиша</span><strong id="room-code"></strong></div>
+          <div><span class="label">Код для второго телефона</span><strong id="room-code"></strong></div>
           <button id="share">Копировать ссылку</button>
+          <p id="pair-help" class="setup-note">Открой Створ на втором телефоне, введи этот код и нажми «Войти на финиш».</p>
         </div>
         <form id="start-form">
           <fieldset><legend>Дистанция</legend>

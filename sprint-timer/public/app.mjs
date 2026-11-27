@@ -228,7 +228,8 @@ function onMessage(message, receivedAt) {
         microphone?.stop();
         microphone = null;
       }
-      notice(message.text);
+      if (message.code === 'join') joinError(message.text);
+      else notice(message.text);
       break;
   }
   render();
@@ -540,6 +541,7 @@ function render() {
     : !clock ? 'Сверяем часы…' : !stableClock(clock) ? 'Связь слишком нестабильна для старта' : remoteReady ? 'Оба телефона готовы'
       : 'Связь есть · финиш ещё не готов';
   text('room-status', status);
+  show('pair-help', start && !paired);
   $('room-status').classList.toggle('good', Boolean(ready));
   text('diagnostics', clock ? `RTT до сервера · ${Math.round(clock.rtt)} мс` : '');
   show('start-controls', start && !run && !result);
@@ -623,10 +625,18 @@ $('export').onclick = () => {
   setTimeout(() => URL.revokeObjectURL(href), 1000);
 };
 $('create').onclick = () => requestSession('create');
+function joinError(message) {
+  text('join-error', message);
+  show('join-error', Boolean(message));
+  $('join-code').setAttribute('aria-invalid', String(Boolean(message)));
+}
+
+$('join-code').oninput = () => joinError('');
 $('join-form').onsubmit = event => {
   event.preventDefault();
   const code = $('join-code').value.trim().toUpperCase();
-  if (!/^[0-9A-F]{8}$/.test(code)) return notice('Введи восемь символов кода комнаты.');
+  if (!/^[0-9A-F]{8}$/.test(code)) return joinError('Введи восемь символов кода с первого телефона.');
+  joinError('');
   requestSession('join', code);
 };
 $('leave').onclick = leave;
