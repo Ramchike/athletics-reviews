@@ -24,6 +24,7 @@ let inviteQr;
 let history = load(localStorage, historyKey, []);
 let athletes = load(localStorage, athletesKey, []);
 let screen = 'timer';
+let athleteDetail;
 let scanController;
 let series = load(sessionStorage, seriesKey, null);
 let socket;
@@ -554,7 +555,8 @@ function render() {
   const timer = screen === 'timer';
   show('home', timer && !session);
   show('room', timer && Boolean(session));
-  show('athlete-page', !timer);
+  show('athlete-page', !timer && !athleteDetail);
+  show('athlete-detail', !timer && Boolean(athleteDetail));
   show('history', timer && history.length > 0);
   $('timer-tab').setAttribute('aria-pressed', String(timer));
   $('athletes-tab').setAttribute('aria-pressed', String(!timer));
@@ -640,13 +642,20 @@ function knownAthletes() {
     .sort((a, b) => a.localeCompare(b, 'ru'));
 }
 
+function showAthlete(name) {
+  athleteDetail = name;
+  renderAthleteResults();
+  render();
+  $('athlete-title').focus();
+}
+
 function renderAthleteResults() {
-  const name = $('athlete-filter').value;
-  const entries = name ? history.filter(item => item.athlete === name) : [];
+  if (!athleteDetail) return;
+  const entries = history.filter(item => item.athlete === athleteDetail);
+  text('athlete-title', athleteDetail);
   $('athlete-results').replaceChildren(...entries.map(item => attemptRow(item, false)));
-  text('athlete-empty', name ? 'Пока нет результатов' : 'Добавь спортсмена');
   show('athlete-empty', entries.length === 0);
-  $('athlete-filter').disabled = !name;
+  show('athlete-results', entries.length > 0);
 }
 
 function renderHistory() {
@@ -655,38 +664,68 @@ function renderHistory() {
   const selected = startSelect.value;
   startSelect.replaceChildren(new Option('Без имени', ''), ...names.map(name => new Option(name, name)));
   startSelect.value = names.includes(selected) ? selected : '';
-  const historySelect = $('athlete-filter');
-  const athlete = historySelect.value;
-  historySelect.replaceChildren(...names.map(name => new Option(name, name)));
-  if (names.includes(athlete)) historySelect.value = athlete;
+  $('athlete-list').replaceChildren(...names.map(name => {
+    const row = document.createElement('li');
+    const openAthlete = document.createElement('button');
+    openAthlete.type = 'button';
+    openAthlete.dataset.name = name;
+    openAthlete.className = 'athlete-row';
+    const arrow = document.createElement('span');
+    arrow.className = 'row-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '›';
+    openAthlete.append(name, arrow);
+    openAthlete.onclick = () => showAthlete(name);
+    row.append(openAthlete);
+    return row;
+  }));
+  show('athlete-list', names.length > 0);
+  show('athlete-list-empty', names.length === 0);
   $('attempts').replaceChildren(...history.slice(0, 8).map(item => attemptRow(item, true)));
   renderAthleteResults();
 }
 
-$('athlete-filter').onchange = renderAthleteResults;
+$('athlete-back').onclick = () => {
+  const previous = athleteDetail;
+  athleteDetail = null;
+  render();
+  [...$('athlete-list').querySelectorAll('button')].find(button => button.dataset.name === previous)?.focus();
+};
+$('athlete-add').onclick = () => {
+  $('athlete-form').reset();
+  show('athlete-feedback', false);
+  $('athlete-name').removeAttribute('aria-invalid');
+  $('athlete-dialog').showModal();
+};
+$('athlete-close').onclick = () => $('athlete-dialog').close();
 $('athlete-form').onsubmit = event => {
   event.preventDefault();
   const field = $('athlete-name');
   const name = field.value.trim().slice(0, 40);
   const existing = knownAthletes().find(item => item.toLocaleLowerCase('ru') === name.toLocaleLowerCase('ru'));
-  if (name && !existing) {
-    athletes = [...athletes, name];
-    save(localStorage, athletesKey, athletes);
-    renderHistory();
-    $('athlete-filter').value = name;
-    $('athlete').value = name;
-    renderAthleteResults();
-    field.value = '';
-    field.blur();
+  if (!name || existing) {
+    text('athlete-feedback', existing ? 'Это имя уже в списке.' : 'Введи имя.');
+    show('athlete-feedback', true);
+    field.setAttribute('aria-invalid', 'true');
+    field.focus();
+    return;
   }
-  text('athlete-feedback', !name ? 'Введи имя.' : existing ? 'Это имя уже в списке.' : 'Спортсмен добавлен.');
-  show('athlete-feedback', true);
+  athletes = [...athletes, name];
+  save(localStorage, athletesKey, athletes);
+  renderHistory();
+  $('athlete').value = name;
+  $('athlete-dialog').close();
+  showAthlete(name);
 };
-$('athlete-name').oninput = () => show('athlete-feedback', false);
+$('athlete-name').oninput = () => {
+  show('athlete-feedback', false);
+  $('athlete-name').removeAttribute('aria-invalid');
+};
 
 function switchScreen(next) {
   if (run) return;
   screen = next;
+  athleteDetail = null;
   if (next === 'athletes' && localReady) {
     localReady = false;
     send({ type: 'ready', ready: false });
@@ -830,7 +869,17 @@ document.addEventListener('visibilitychange', () => {
     render();
   }
 });
-if (/^[0-9A-F]{8}$/.test(inviteCode)) $('join-code').value = inviteCode;
+const roleOptions = document.querySelectorAll('[name="phone-role"]');
+function selectPhoneRole(role) {
+  show('start-entry', role === 'start');
+  show('finish-entry', role === 'finish');
+}
+for (const option of roleOptions) option.onchange = () => selectPhoneRole(option.value);
+if (/^[0-9A-F]{8}$/.test(inviteCode)) {
+  $('join-code').value = inviteCode;
+  roleOptions[1].checked = true;
+  selectPhoneRole('finish');
+}
 if (session) connect();
 renderHistory();
 render();

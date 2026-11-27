@@ -3,30 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#191b18">
+  <meta name="theme-color" content="#f4f4f5">
   <title>Створ — таймер спринта</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="mast"><a href="/" aria-label="Створ, главная">СТВОР<span></span></a><span class="unit">ТАЙМЕР СПРИНТА</span></header>
+  <header class="mast"><a href="/" aria-label="Створ, главная">Створ<span aria-hidden="true"></span></a></header>
   <nav class="tabs" aria-label="Разделы">
     <button id="timer-tab" aria-pressed="true" type="button">Замер</button>
     <button id="athletes-tab" aria-pressed="false" type="button">Спортсмены</button>
   </nav>
   <main>
     <section id="home">
-      <div class="hero">
-        <h1>Замер спринта</h1>
-        <p>60 и 100 м · два телефона с интернетом</p>
-      </div>
-      <div class="panel">
-        <div class="phone-actions">
-          <button id="create" class="primary">Создать старт</button>
-          <button id="scan-qr" type="button">Сканировать QR</button>
+      <h1>Замер</h1>
+      <fieldset class="role-picker">
+        <legend class="sr-only">Роль телефона</legend>
+        <div class="segments">
+          <label><input type="radio" name="phone-role" value="start" checked><span>Старт</span></label>
+          <label><input type="radio" name="phone-role" value="finish"><span>Финиш</span></label>
         </div>
+      </fieldset>
+      <div id="start-entry" class="panel entry">
+        <h2>Стартовый телефон</h2>
+        <p>Даёт сигнал и показывает QR для второго телефона.</p>
+        <button id="create" class="primary">Создать старт</button>
+      </div>
+      <div id="finish-entry" class="panel entry" hidden>
+        <h2>Финишный телефон</h2>
+        <button id="scan-qr" type="button" class="primary">Сканировать QR</button>
         <form id="join-form">
           <label for="join-code">Код со стартового телефона</label>
-          <div class="inline"><input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="8 символов" aria-describedby="join-error" required><button>Войти на финиш</button></div>
+          <div class="inline"><input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="8 символов" aria-describedby="join-error" required><button>Войти по коду</button></div>
           <p id="join-error" class="notice" role="alert" hidden></p>
         </form>
       </div>
@@ -42,7 +49,7 @@
       <div id="start-controls" hidden class="panel">
         <div id="pairing" class="pair">
           <div><span class="label">Код для второго телефона</span><strong id="room-code"></strong></div>
-          <p id="pair-help" class="setup-note">На втором телефоне нажми «Сканировать QR» или введи код.</p>
+          <p id="pair-help" class="setup-note">На втором телефоне выбери «Финиш», затем отсканируй QR или введи код.</p>
           <div id="invite-qr" hidden>
             <img id="invite-image" width="166" height="166" alt="QR-код приглашения для второго телефона">
           </div>
@@ -120,20 +127,27 @@
       <ol id="attempts"></ol>
     </section>
     <section id="athlete-page" hidden>
-      <h1>Спортсмены</h1>
-      <form id="athlete-form" class="panel">
-        <label for="athlete-name">Имя</label>
-        <div class="inline"><input id="athlete-name" maxlength="40" autocomplete="off" required><button type="submit">Добавить</button></div>
-        <p id="athlete-feedback" class="detail" role="status" hidden></p>
-      </form>
-      <div class="panel">
-        <label for="athlete-filter">Результаты спортсмена</label>
-        <select id="athlete-filter"></select>
-        <p id="athlete-empty" class="detail"></p>
-        <ol id="athlete-results" class="attempts"></ol>
-      </div>
+      <div class="title-row"><h1>Спортсмены</h1><button id="athlete-add" type="button" class="icon-button" aria-label="Добавить спортсмена">+</button></div>
+      <ul id="athlete-list" class="grouped-list"></ul>
+      <p id="athlete-list-empty" class="detail">Добавь спортсмена, чтобы сохранять его результаты.</p>
+    </section>
+    <section id="athlete-detail" hidden>
+      <button id="athlete-back" type="button" class="back-button">‹ Спортсмены</button>
+      <h1 id="athlete-title" tabindex="-1"></h1>
+      <h2 class="section-label">Результаты</h2>
+      <p id="athlete-empty" class="detail">Пока нет результатов</p>
+      <ol id="athlete-results" class="attempts grouped-list"></ol>
     </section>
   </main>
+  <dialog id="athlete-dialog" aria-labelledby="athlete-dialog-title">
+    <div class="title-row"><h2 id="athlete-dialog-title">Новый спортсмен</h2><button id="athlete-close" type="button" class="quiet">Отмена</button></div>
+    <form id="athlete-form">
+      <label for="athlete-name">Имя</label>
+      <input id="athlete-name" maxlength="40" autocomplete="off" enterkeyhint="done" aria-describedby="athlete-feedback" required>
+      <p id="athlete-feedback" class="notice" role="alert" hidden></p>
+      <button type="submit" class="primary">Добавить</button>
+    </form>
+  </dialog>
   <dialog id="scan-dialog" aria-labelledby="scan-title">
     <div class="title-row"><h2 id="scan-title">Сканировать QR</h2><button id="scan-close" type="button">Закрыть</button></div>
     <video id="scan-video" autoplay playsinline muted></video>
