@@ -1,0 +1,10 @@
+services:
+  timer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PUBLIC_ORIGIN: https://stvor.theinventive.tech
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.50
