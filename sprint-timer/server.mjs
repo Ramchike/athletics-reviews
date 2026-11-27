@@ -16,6 +16,7 @@ const files = new Map([
   ['/vendor/jsQR.js', ['node_modules/jsqr/dist/jsQR.js', 'text/javascript']],
   ['/style.css', ['public/style.css', 'text/css']],
   ['/app.mjs', ['public/app.mjs', 'text/javascript']],
+  ['/capture.mjs', ['public/capture.mjs', 'text/javascript']],
   ['/sound-trigger.mjs', ['public/sound-trigger.mjs', 'text/javascript']],
   ['/finish.mjs', ['public/finish.mjs', 'text/javascript']],
   ['/timing.mjs', ['public/timing.mjs', 'text/javascript']],

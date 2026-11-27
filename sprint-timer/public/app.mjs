@@ -1,4 +1,5 @@
 import { clockSample, estimateClock } from './timing.mjs';
+import { loadReplay, recordAttempt, storeReplay } from './capture.mjs';
 
 const $ = id => document.getElementById(id);
 const show = (id, visible) => { $(id).hidden = !visible; };
@@ -10,6 +11,7 @@ const storageKey = 'stvor-session';
 const historyKey = 'stvor-results';
 const seriesKey = 'stvor-series';
 const athletesKey = 'stvor-athletes';
+const onboardingKey = 'stvor-onboarding';
 const load = (storage, key, fallback) => {
   try { return JSON.parse(storage.getItem(key)) ?? fallback; } catch { return fallback; }
 };
@@ -17,7 +19,9 @@ const save = (storage, key, value) => {
   try { storage.setItem(key, JSON.stringify(value)); } catch { /* Private browsing or storage quota. */ }
 };
 const format = value => (value / 1000).toFixed(2).replace('.', ',');
-const inviteCode = new URLSearchParams(location.hash.slice(1)).get('finish') ?? '';
+const validCode = /^[0-9A-F]{8}$/;
+const invite = new URLSearchParams(location.hash.slice(1)).get('finish') ?? '';
+const inviteCode = validCode.test(invite) ? invite : '';
 
 let session = inviteCode ? null : load(sessionStorage, storageKey, null);
 let inviteQr;
@@ -26,6 +30,9 @@ let athletes = load(localStorage, athletesKey, []);
 let screen = 'timer';
 let athleteDetail;
 let scanController;
+let onboardingStep;
+const replayWrites = new Map();
+let replayView;
 let series = load(sessionStorage, seriesKey, null);
 let socket;
 let reconnect;
@@ -40,6 +47,9 @@ let result;
 let pending;
 let camera;
 let cameraGeneration = 0;
+let startStream;
+let openingStartCamera = false;
+let recording;
 let checkingFinish = false;
 let photo;
 let audio;
@@ -108,6 +118,8 @@ function notice(message) {
 }
 
 function resetRun() {
+  recording?.();
+  recording = null;
   microphone?.stop();
   microphone = null;
   clearTimeout(reportTimer);
@@ -125,9 +137,10 @@ function leave() {
   $('camera-button').disabled = false;
   camera?.stop();
   camera = null;
+  stopStartPreview();
   photo = result = intent = session = null;
   inviteQr = null;
-  $('invite-qr').open = false;
+  text('copy-invite', 'Копировать ссылку');
   $('invite-image').removeAttribute('src');
   checkingFinish = false;
   localReady = remoteReady = paired = false;
@@ -144,11 +157,13 @@ function leave() {
   wake = null;
   notice('');
   render();
+  $('create').focus({ preventScroll: true });
 }
 
 function onMessage(message, receivedAt) {
   switch (message.type) {
     case 'session': {
+      const entering = !session;
       const { code, role, token } = message;
       intent = null;
       session = { code, role, token };
@@ -167,12 +182,17 @@ function onMessage(message, receivedAt) {
         }
       }, 130);
       if (role === 'finish') send({ type: 'ready', ready: localReady });
-      if (run && message.run?.id !== run.id) resetRun();
+      if (run && message.run?.id !== run.id && message.result?.id !== run.id) resetRun();
       if (run && message.run?.armed) armRun(run.id);
       else if (role === 'finish' && run?.cameraArmed) send({ type: 'armed', id: run.id });
       if (run?.go === null && message.run?.startEvent) acceptStart(message.run.startEvent.t);
       if (pending && message.run?.id === pending.id) send(pending);
       if (message.result) displayResult(message.result);
+      if (entering) {
+        show('join-form', false);
+        render();
+        $('room-title').focus({ preventScroll: true });
+      }
       break;
     }
     case 'invite-qr':
@@ -208,6 +228,8 @@ function onMessage(message, receivedAt) {
       photo = result = null;
       checkingFinish = false;
       run = { ...message.run, clock, armed: false };
+      const stream = camera ? $('camera').srcObject : startStream;
+      recording = recordAttempt(stream);
       if (session.role === 'finish') {
         const id = run.id;
         $('camera').play().then(() => {
@@ -247,7 +269,10 @@ function onMessage(message, receivedAt) {
         microphone?.stop();
         microphone = null;
       }
-      if (message.code === 'join') joinError(message.text);
+      if (message.code === 'join') {
+        openCodeEntry();
+        joinError(message.text);
+      }
       else notice(message.text);
       break;
   }
@@ -396,6 +421,16 @@ function playStart() {
 function displayResult(message, receivedAt) {
   const resultArrivalMs = run?.id === message.id && Number.isFinite(receivedAt)
     && Number.isFinite(message.finishAt) ? Math.round(receivedAt + run.clock.offset - message.finishAt) : null;
+  if (run?.id === message.id && (recording || photo)) {
+    const { id } = message;
+    const { role } = session;
+    const photos = photo;
+    const stopped = recording?.();
+    const saved = Promise.resolve(stopped).then(video => storeReplay({ id, role, photos, video }));
+    recording = null;
+    replayWrites.set(id, saved);
+    saved.catch(() => notice('Не удалось сохранить запись на этом телефоне.')).finally(() => replayWrites.delete(id));
+  }
   resetRun();
   result = message;
   if (series?.code === session.code && message.series?.id === series.id && message.series.index === series.index) {
@@ -547,6 +582,46 @@ async function startCamera() {
   }
 }
 
+function stopStartPreview() {
+  startStream?.getTracks().forEach(track => track.stop());
+  startStream = null;
+  $('start-preview').srcObject = null;
+}
+
+$('start-record-button').onclick = async () => {
+  if (startStream) {
+    stopStartPreview();
+    render();
+    return;
+  }
+  const openingSession = session;
+  openingStartCamera = true;
+  render();
+  notice('');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false,
+    });
+    if (openingSession !== session || $('mode').value === 'flying') {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+    startStream = stream;
+    stream.getVideoTracks()[0].addEventListener('ended', () => {
+      if (startStream !== stream) return;
+      stopStartPreview();
+      render();
+    });
+    $('start-preview').srcObject = stream;
+  } catch {
+    if (openingSession === session) notice('Камера старта недоступна.');
+  } finally {
+    openingStartCamera = false;
+    render();
+  }
+};
+
 function render() {
   const start = session?.role === 'start';
   const finish = session?.role === 'finish';
@@ -558,11 +633,11 @@ function render() {
   show('athlete-page', !timer && !athleteDetail);
   show('athlete-detail', !timer && Boolean(athleteDetail));
   show('history', timer && history.length > 0);
-  $('timer-tab').setAttribute('aria-pressed', String(timer));
-  $('athletes-tab').setAttribute('aria-pressed', String(!timer));
+  $('timer-tab').setAttribute('aria-current', timer ? 'page' : 'false');
+  $('athletes-tab').setAttribute('aria-current', timer ? 'false' : 'page');
+  $('show-onboarding').disabled = Boolean(run);
   $('athletes-tab').disabled = Boolean(run);
   if (!session) return;
-  text('room-role', start ? 'ТЕЛЕФОН СТАРТА' : 'ТЕЛЕФОН ФИНИША');
   text('room-title', start ? 'На старте' : 'На финише');
   text('room-code', session.code);
   const ready = paired && remoteReady && connected && stableClock(clock);
@@ -570,8 +645,9 @@ function render() {
     : !clock ? 'Сверяем часы…' : !stableClock(clock) ? 'Связь слишком нестабильна для старта' : remoteReady ? 'Оба телефона готовы'
       : 'Связь есть · финиш ещё не готов';
   text('room-status', status);
-  show('pair-help', start && !paired);
-  show('invite-qr', Boolean(start && !paired && inviteQr));
+  show('pairing', !paired);
+  show('invite-image', Boolean(start && inviteQr));
+  show('start-form', paired);
   $('room-status').classList.toggle('good', Boolean(ready));
   show('start-controls', start && !run && !result);
   const queue = currentSeries();
@@ -589,6 +665,11 @@ function render() {
     ? `Серия · попытка ${queue.index + 1} из ${queue.athletes.length}`
     : `Серия завершена · ${queue.athletes.length} попыток`);
   const flying = $('mode').value === 'flying';
+  show('start-recording', start && !flying);
+  show('start-preview', Boolean(startStream));
+  $('start-record-button').disabled = openingStartCamera;
+  $('start-record-button').setAttribute('aria-pressed', String(Boolean(startStream)));
+  text('start-record-button', startStream ? 'Выключить запись старта' : 'Включить запись старта');
   show('finish-controls', (finish || (start && flying)) && !result);
   text('camera-instructions', start
     ? 'Поставь телефон сбоку на высоте груди. Совмести вертикаль со стартовой чертой.'
@@ -629,13 +710,98 @@ function render() {
 
 function attemptRow(item, showName) {
   const row = document.createElement('li');
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'attempt-row';
   const label = document.createElement('span');
   const time = document.createElement('strong');
+  const arrow = document.createElement('span');
+  arrow.className = 'row-arrow';
+  arrow.setAttribute('aria-hidden', 'true');
+  arrow.textContent = '›';
   label.textContent = [showName && item.athlete, `${item.distance} м`, new Date(item.date).toLocaleDateString('ru')].filter(Boolean).join(' · ');
   time.textContent = `${format(item.duration)} с`;
-  row.append(label, time);
+  button.append(label, time, arrow);
+  button.onclick = () => openReplay(item);
+  row.append(button);
   return row;
 }
+
+async function openReplay(item) {
+  const dialog = $('result-dialog');
+  const view = { urls: [] };
+  replayView = view;
+  text('result-title', item.athlete ? `${item.athlete} / Попытка` : 'Попытка');
+  text('attempt-duration', `${format(item.duration)} с`);
+  const startModes = {
+    countdown: 'Обратный отсчёт', random: 'Команды с паузой', touch: 'Касание',
+    sound: 'Внешний звук', flying: 'С ходу',
+  };
+  const facts = [
+    ['Дистанция', `${item.distance} м`],
+    ['Дата', new Date(item.date).toLocaleString('ru', { dateStyle: 'medium', timeStyle: 'short' })],
+    ['Старт', startModes[item.mode]],
+    ['Интервал кадров на старте', item.startFrameMs && `${Math.round(item.startFrameMs)} мс`],
+    ['Интервал кадров на финише', item.frameMs && `${Math.round(item.frameMs)} мс`],
+  ];
+  $('attempt-facts').replaceChildren(...facts.filter(([, value]) => value).map(([name, value]) => {
+    const row = document.createElement('div');
+    const term = document.createElement('dt');
+    const description = document.createElement('dd');
+    term.textContent = name;
+    description.textContent = value;
+    row.append(term, description);
+    return row;
+  }));
+  $('replays').replaceChildren();
+  text('replay-status', 'Открываем запись…');
+  dialog.showModal();
+  try {
+    await replayWrites.get(item.id);
+    const clips = await Promise.all(['start', 'finish'].map(role => loadReplay(item.id, role)));
+    if (replayView !== view) return;
+    for (const clip of clips.filter(Boolean)) {
+      const block = document.createElement('section');
+      const title = document.createElement('h4');
+      title.textContent = clip.role === 'start' ? 'Старт' : 'Финиш';
+      block.append(title);
+      if (clip.video) {
+        const url = URL.createObjectURL(clip.video);
+        view.urls.push(url);
+        const video = document.createElement('video');
+        Object.assign(video, { controls: true, playsInline: true, preload: 'metadata', src: url });
+        block.append(video);
+      }
+      if (clip.photos?.length) {
+        const grid = document.createElement('div');
+        grid.className = 'evidence';
+        clip.photos.forEach((src, index) => {
+          const figure = document.createElement('figure');
+          const caption = document.createElement('figcaption');
+          caption.textContent = index ? 'После линии' : 'До линии';
+          const image = new Image();
+          Object.assign(image, { src, alt: caption.textContent });
+          figure.append(image, caption);
+          grid.append(figure);
+        });
+        block.append(grid);
+      }
+      $('replays').append(block);
+    }
+    text('replay-status', clips.some(Boolean) ? '' : 'На этом телефоне запись недоступна.');
+  } catch {
+    if (replayView === view) text('replay-status', 'Не удалось открыть запись на этом телефоне.');
+  }
+}
+
+$('result-close').onclick = () => $('result-dialog').close();
+$('result-dialog').onclose = () => {
+  if ($('result-dialog').open) return;
+  $('replays').replaceChildren();
+  replayView?.urls.forEach(url => URL.revokeObjectURL(url));
+  replayView = null;
+};
+$('current-result').onclick = () => { if (result) void openReplay(result); };
 
 function knownAthletes() {
   return [...new Set([...athletes, ...history.map(item => item.athlete).filter(Boolean)])]
@@ -644,6 +810,8 @@ function knownAthletes() {
 
 function showAthlete(name) {
   athleteDetail = name;
+  $('result-order').value = 'recent';
+  $('result-distance').value = '';
   renderAthleteResults();
   render();
   $('athlete-title').focus();
@@ -651,12 +819,31 @@ function showAthlete(name) {
 
 function renderAthleteResults() {
   if (!athleteDetail) return;
-  const entries = history.filter(item => item.athlete === athleteDetail);
-  text('athlete-title', athleteDetail);
-  $('athlete-results').replaceChildren(...entries.map(item => attemptRow(item, false)));
+  const all = history.filter(item => item.athlete === athleteDetail);
+  const order = $('result-order').value;
+  const distance = $('result-distance').value;
+  const entries = all.filter(item => !distance || String(item.distance) === distance);
+  if (order !== 'recent') {
+    entries.sort((a, b) => a.distance - b.distance
+      || (order === 'best' ? a.duration - b.duration : b.duration - a.duration));
+  }
+  text('athlete-title', `${athleteDetail} / Результаты`);
+  const rows = entries.flatMap((item, index) => {
+    const row = attemptRow(item, false);
+    if (order === 'recent' || distance || item.distance === entries[index - 1]?.distance) return [row];
+    const group = document.createElement('li');
+    group.className = 'result-group';
+    group.textContent = `${item.distance} м`;
+    return [group, row];
+  });
+  $('athlete-results').replaceChildren(...rows);
+  show('result-filters', all.length > 0);
+  text('athlete-empty', all.length ? 'На этой дистанции пока нет результатов' : 'Пока нет результатов');
   show('athlete-empty', entries.length === 0);
   show('athlete-results', entries.length > 0);
 }
+
+$('result-order').onchange = $('result-distance').onchange = renderAthleteResults;
 
 function renderHistory() {
   const names = knownAthletes();
@@ -696,6 +883,7 @@ $('athlete-add').onclick = () => {
   show('athlete-feedback', false);
   $('athlete-name').removeAttribute('aria-invalid');
   $('athlete-dialog').showModal();
+  $('athlete-name').focus({ preventScroll: true });
 };
 $('athlete-close').onclick = () => $('athlete-dialog').close();
 $('athlete-form').onsubmit = event => {
@@ -753,17 +941,35 @@ $('export').onclick = () => {
   setTimeout(() => URL.revokeObjectURL(href), 1000);
 };
 $('create').onclick = () => requestSession('create');
+$('copy-invite').onclick = async () => {
+  const code = session?.code;
+  if (!code) return;
+  const url = new URL('/', location.href);
+  url.hash = `finish=${code}`;
+  try {
+    await navigator.clipboard.writeText(url.href);
+    if (session?.code === code) text('copy-invite', 'Ссылка скопирована');
+  } catch {
+    notice('Не удалось скопировать ссылку. Используй QR или код подключения.');
+  }
+};
+
 function joinError(message) {
   text('join-error', message);
   show('join-error', Boolean(message));
   $('join-code').setAttribute('aria-invalid', String(Boolean(message)));
 }
 
+function openCodeEntry() {
+  show('join-form', true);
+  $('join-code').focus();
+}
+
 $('join-code').oninput = () => joinError('');
 $('join-form').onsubmit = event => {
   event.preventDefault();
   const code = $('join-code').value.trim().toUpperCase();
-  if (!/^[0-9A-F]{8}$/.test(code)) return joinError('Введи восемь символов кода с первого телефона.');
+  if (!validCode.test(code)) return joinError('Введи восемь символов кода с первого телефона.');
   joinError('');
   requestSession('join', code);
 };
@@ -788,6 +994,10 @@ $('scan-qr').onclick = async () => {
   }
 };
 $('scan-close').onclick = () => $('scan-dialog').close();
+$('scan-manual').onclick = () => {
+  $('scan-dialog').close();
+  openCodeEntry();
+};
 $('scan-dialog').onclose = () => {
   scanController?.abort();
   scanController = null;
@@ -797,6 +1007,7 @@ $('start-form').onsubmit = startRun;
 $('series-apply').onclick = applySeries;
 $('series-clear').onclick = () => { saveSeries(null); render(); };
 $('mode').onchange = () => {
+  if ($('mode').value === 'flying') stopStartPreview();
   if ($('mode').value !== 'flying') {
     cameraGeneration += 1;
     camera?.stop();
@@ -869,17 +1080,53 @@ document.addEventListener('visibilitychange', () => {
     render();
   }
 });
-const roleOptions = document.querySelectorAll('[name="phone-role"]');
-function selectPhoneRole(role) {
-  show('start-entry', role === 'start');
-  show('finish-entry', role === 'finish');
+const onboarding = [
+  ['Создай старт', 'На первом телефоне нажми «Создать старт». На экране появится QR-код.'],
+  ['Подключи финиш', 'На втором телефоне открой «Створ», нажми «Подключить финиш» и отсканируй QR. Оба телефона должны быть в интернете.'],
+  ['Сделай замер', 'Совмести вертикаль в камере с финишной чертой. Отметь готовность финиша, затем запусти отсчёт на старте.'],
+];
+
+function renderOnboarding() {
+  const [title, copy] = onboarding[onboardingStep];
+  $('onboarding').dataset.step = String(onboardingStep);
+  text('onboarding-step', `${onboardingStep + 1} / ${onboarding.length}`);
+  text('onboarding-title', title);
+  text('onboarding-copy', copy);
+  text('onboarding-next', onboardingStep === onboarding.length - 1 ? 'К замеру' : 'Далее');
+  show('onboarding-skip', onboardingStep < onboarding.length - 1);
 }
-for (const option of roleOptions) option.onchange = () => selectPhoneRole(option.value);
-if (/^[0-9A-F]{8}$/.test(inviteCode)) {
+
+function openOnboarding() {
+  onboardingStep = 0;
+  renderOnboarding();
+  $('onboarding').showModal();
+  $('onboarding-title').focus({ preventScroll: true });
+}
+
+$('show-onboarding').onclick = openOnboarding;
+function dismissOnboarding() {
+  save(localStorage, onboardingKey, true);
+  $('onboarding').close();
+}
+$('onboarding').oncancel = event => {
+  event.preventDefault();
+  dismissOnboarding();
+};
+$('onboarding-skip').onclick = dismissOnboarding;
+$('onboarding-next').onclick = () => {
+  if (++onboardingStep === onboarding.length) {
+    dismissOnboarding();
+    return;
+  }
+  renderOnboarding();
+  $('onboarding-title').focus({ preventScroll: true });
+};
+
+if (inviteCode) {
   $('join-code').value = inviteCode;
-  roleOptions[1].checked = true;
-  selectPhoneRole('finish');
+  show('join-form', true);
 }
 if (session) connect();
 renderHistory();
 render();
+if (!inviteCode && !session && !load(localStorage, onboardingKey, false)) openOnboarding();
