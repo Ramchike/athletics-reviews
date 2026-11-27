@@ -1,0 +1,7 @@
+node_modules
+public/pose.task
+public/pose.task.*.tmp
+test
+*.py
+*.md
+benchmark-*.mjs

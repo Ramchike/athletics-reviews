@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#141612">
+  <title>Створ — таймер спринта</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="mast"><a href="/" aria-label="Створ, главная">СТВОР<span></span></a><span class="unit">ТАЙМЕР СПРИНТА</span></header>
+  <main>
+    <section id="home">
+      <div class="hero">
+        <div class="lanes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <p class="eyebrow">60 / 100 М</p>
+        <h1>Замерь<br>свой спринт.</h1>
+        <p>Один телефон даёт сигнал.<br>Второй ловит финиш.</p>
+      </div>
+      <div class="panel">
+        <button id="create" class="primary">Создать старт <span>↗</span></button>
+        <form id="join-form">
+          <label for="join-code">Код комнаты на стартовом телефоне</label>
+          <div class="inline"><input id="join-code" maxlength="8" autocapitalize="characters" autocomplete="off" placeholder="Например, A02BC891" required><button>Войти на финиш</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="room" hidden>
+      <div class="title-row">
+        <div><p class="eyebrow" id="room-role"></p><h1 id="room-title"></h1></div>
+        <button class="quiet" id="leave">Выйти</button>
+      </div>
+      <p id="room-status" class="connection" aria-live="polite"></p>
+
+      <div id="start-controls" hidden class="panel">
+        <div id="pairing" class="pair">
+          <div><span class="label">Код финиша</span><strong id="room-code"></strong></div>
+          <button id="share">Копировать ссылку</button>
+        </div>
+        <form id="start-form">
+          <fieldset><legend>Дистанция</legend>
+            <div class="segments">
+              <label><input type="radio" name="distance" value="60" checked><span>60 м</span></label>
+              <label><input type="radio" name="distance" value="100"><span>100 м</span></label>
+            </div>
+          </fieldset>
+          <label for="mode">Режим старта</label>
+          <select id="mode" name="mode"><option value="countdown">3 · 2 · 1 · Марш</option><option value="random">На старт · Внимание · Марш</option><option value="touch">Отпустить палец</option><option value="sound">Внешний звук</option><option value="flying">С ходу · две камеры</option></select>
+          <label for="lead" id="lead-label">Пауза до первого сигнала</label>
+          <select id="lead" name="lead"><option value="5">5 секунд</option><option value="10">10 секунд</option><option value="20">20 секунд</option></select>
+          <label for="athlete">Спортсмен</label><input id="athlete" name="athlete" placeholder="Имя (необязательно)" maxlength="40" list="athletes">
+          <datalist id="athletes"></datalist>
+          <details id="series-settings">
+            <summary>Серия попыток</summary>
+            <div class="series-fields">
+              <label for="series-names">Спортсмены по порядку, по одному имени в строке</label>
+              <textarea id="series-names" rows="3" maxlength="400" placeholder="Оставь пустым для своих повторов"></textarea>
+              <label for="series-rounds">Кругов по списку</label>
+              <input id="series-rounds" type="number" min="1" max="10" value="3">
+              <label><input id="series-voice" type="checkbox"> Объявлять следующее имя</label>
+              <button id="series-apply" type="button">Начать серию</button>
+              <button id="series-clear" type="button" hidden>Завершить серию</button>
+            </div>
+          </details>
+          <p id="series-state" class="detail" hidden></p>
+          <button id="start-run" class="primary" disabled>Начать отсчёт <span>↗</span></button>
+        </form>
+      </div>
+
+      <div id="finish-controls" hidden class="panel">
+        <p id="camera-instructions">Поставь телефон сбоку, на продолжении финишной черты, примерно на высоте груди. Совмести ближний край разметки со светлой вертикалью. Оставь в кадре одну дорожку.</p>
+        <button id="camera-button" class="primary">Включить камеру <span>↗</span></button>
+        <div id="camera-settings" hidden>
+          <div class="viewfinder">
+            <video id="camera" autoplay playsinline muted></video>
+            <div class="finish-line" id="finish-line" aria-hidden="true"></div>
+            <div id="torso-point" aria-hidden="true" hidden></div>
+          </div>
+          <label for="line">Положение линии в кадре</label>
+          <input id="line" type="range" min="25" max="75" value="50">
+          <label for="direction">Направление бега в кадре</label>
+          <select id="direction"><option value="1">Слева направо →</option><option value="-1">Справа налево ←</option></select>
+          <p id="camera-metrics" class="detail"></p>
+          <button id="ready" class="primary" disabled>Финиш готов <span>↗</span></button>
+          <button id="check-finish" class="quiet" disabled>Проверить проход</button>
+        </div>
+      </div>
+
+      <div id="running" class="panel run" hidden>
+        <p id="run-phase" class="eyebrow" aria-live="polite"></p>
+        <p id="clock" aria-hidden="true">—</p>
+        <button id="touch-pad" class="primary" hidden>Удерживай здесь до старта</button>
+        <button id="cancel" class="quiet">Отменить попытку</button>
+      </div>
+
+      <div id="result" class="panel result" hidden>
+        <p id="result-label" class="eyebrow"></p>
+        <p id="result-time"></p>
+        <p id="result-quality"></p>
+        <div class="evidence" id="finish-evidence" hidden>
+          <figure><img id="photo-before" alt="Туловище перед финишной линией"><figcaption>До линии</figcaption></figure>
+          <figure><img id="photo-after" alt="Туловище после финишной линии"><figcaption>После линии</figcaption></figure>
+        </div>
+        <button id="again" class="primary">Следующая попытка <span>↗</span></button>
+      </div>
+      <p id="diagnostics" class="detail"></p>
+    </section>
+
+    <p id="notice" class="notice" role="status" hidden></p>
+    <section id="history" hidden>
+      <div class="title-row"><h2>Попытки</h2><button id="export" class="quiet">CSV ↓</button></div>
+      <ol id="attempts"></ol>
+    </section>
+  </main>
+  <script type="module" src="/app.mjs"></script>
+</body>
+</html>
